@@ -1,0 +1,12 @@
+* TODO Parsing specification
+  How should the parsing specification be supplied?
+
+* TODO Read in a configuration file
+
+* TODO Integration test
+
+* TODO Test running tcp server with tornado and connecting with syslog-ng
+
+* TODO Load testing
+
+* TODO Add project to a CI and add badges
