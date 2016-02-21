@@ -7,6 +7,7 @@ import yaml
 from . import MainHandler, ConnectionHandler
 
 DEFAULT_PORT = 8899
+DEFAULT_ADDRESS = '0.0.0.0'
 
 def run():
     config_path = os.path.abspath(sys.argv[1])
@@ -18,5 +19,5 @@ def run():
             SPEC = config['parse_spec']
         server = MainHandler(connection_class=FromConfigHandler)
     port = config.get('port', DEFAULT_PORT)
-    server.listen(port)
+    server.listen(port, address=DEFAULT_ADDRESS)
     tornado.ioloop.IOLoop.current().start()
