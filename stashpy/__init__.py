@@ -41,11 +41,19 @@ class ConnectionHandler:
         self.server = server
         self.stream.set_close_callback(self.on_close)
         self.line_processor = LineProcessor(self.SPEC)
-        self.loop()
 
-    def loop(self):
-        logger.info('Entering loop')
-        self.stream.read_until(b"\n", self.process_line)
+    @gen.coroutine
+    def on_connect(self):
+        yield self.dispatch_client()
+
+    @gen.coroutine
+    def dispatch_client(self):
+        try:
+            while True:
+                line = yield self.stream.read_until(b"\n")
+                yield self.process_line(line)
+        except tornado.iostream.StreamClosedError:
+            pass
 
     @gen.coroutine
     def process_line(self, line):
@@ -55,7 +63,6 @@ class ConnectionHandler:
         if result:
             logger.info("Match: %s", str(result))
             yield from self.index(result)
-        self.loop()
 
     @gen.coroutine
     def index(self, doc):
@@ -71,8 +78,10 @@ class ConnectionHandler:
     def index_callback(self, response):
         logger.info(repr(response))
 
+    @gen.coroutine
     def on_close(self):
         logger.info("Connection to %s closed", self.address)
+        yield []
 
 
 
@@ -86,5 +95,7 @@ class MainHandler(tornado.tcpserver.TCPServer):
         self.connection_class = kwargs.pop('connection_class')
         super().__init__()
 
+    @gen.coroutine
     def handle_stream(self, stream, address):
         cn = self.connection_class(stream, address, self)
+        yield cn.on_connect()
