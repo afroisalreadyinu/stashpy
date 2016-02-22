@@ -3,6 +3,7 @@ import json
 import logging
 from uuid import uuid4
 
+from tornado import gen
 import tornado.tcpserver
 from parse import parse
 
@@ -46,18 +47,20 @@ class ConnectionHandler:
         logger.info('Entering loop')
         self.stream.read_until(b"\n", self.process_line)
 
+    @gen.coroutine
     def process_line(self, line):
         line = line.decode('utf-8')[:-1]
         logger.info("New line: %s", line)
         result = self.line_processor(line)
         if result:
             logger.info("Match: %s", str(result))
-            self.index(result)
+            yield from self.index(result)
         self.loop()
 
+    @gen.coroutine
     def index(self, doc):
         doc_id = str(uuid4())
-        self.server.es_connection.put(
+        yield self.server.es_connection.put(
             index='default',
             type='doc',
             uid=doc_id,
@@ -77,7 +80,9 @@ class MainHandler(tornado.tcpserver.TCPServer):
 
 
     def __init__(self, *args, **kwargs):
-        self.es_connection = ESConnection("localhost", 9200)
+        es_host = kwargs.pop('es_host')
+        es_port = kwargs.pop('es_port')
+        self.es_connection = ESConnection(es_host, es_port)
         self.connection_class = kwargs.pop('connection_class')
         super().__init__()
 

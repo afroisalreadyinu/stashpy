@@ -17,7 +17,11 @@ def run():
     if 'parse_spec' in config:
         class FromConfigHandler(ConnectionHandler):
             SPEC = config['parse_spec']
-        server = MainHandler(connection_class=FromConfigHandler)
+        server = MainHandler(
+            connection_class=FromConfigHandler,
+            es_host=config.get('es_host', localhost),
+            es_port=9200
+        )
     port = config.get('port', DEFAULT_PORT)
     server.listen(port, address=DEFAULT_ADDRESS)
     tornado.ioloop.IOLoop.current().start()

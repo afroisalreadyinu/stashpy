@@ -4,3 +4,6 @@ parse_spec:
 
 port: 8888
 address : '0.0.0.0'
+
+es_host: 'localhost'
+es_port: 9200
