@@ -74,7 +74,12 @@ class ConnectionHandler:
         )
 
     def index_callback(self, response):
-        logger.info(repr(response))
+        if 200 <= response.status < 300:
+            logger.info("Successfully indexed doc, id: {}".format(response.effective_url))
+        else:
+            logger.warn("Index request returned response {}, reason: {}".format(
+                response.code,
+                response.reason))
 
     @gen.coroutine
     def on_close(self):
