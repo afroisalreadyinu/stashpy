@@ -19,7 +19,7 @@ def run():
             SPEC = config['parse_spec']
         server = MainHandler(
             connection_class=FromConfigHandler,
-            es_host=config.get('es_host', localhost),
+            es_host=config.get('es_host', 'localhost'),
             es_port=9200
         )
     port = config.get('port', DEFAULT_PORT)

@@ -12,7 +12,6 @@ from tornadoes import ESConnection
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
-"My name is {name} and I'm {age:d} years old."
 
 class LineProcessor:
 
@@ -62,7 +61,7 @@ class ConnectionHandler:
         result = self.line_processor(line)
         if result:
             logger.info("Match: %s", str(result))
-            yield from self.index(result)
+            yield self.index(result)
 
     @gen.coroutine
     def index(self, doc):
