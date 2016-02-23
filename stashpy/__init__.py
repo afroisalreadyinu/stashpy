@@ -10,8 +10,6 @@ from parse import parse
 from tornadoes import ESConnection
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
-
 
 class LineProcessor:
 
@@ -40,6 +38,7 @@ class ConnectionHandler:
         self.server = server
         self.stream.set_close_callback(self.on_close)
         self.line_processor = LineProcessor(self.SPEC)
+        logger.info("Accepted connection from {}".format(address))
 
     @gen.coroutine
     def on_connect(self):
@@ -57,7 +56,7 @@ class ConnectionHandler:
     @gen.coroutine
     def process_line(self, line):
         line = line.decode('utf-8')[:-1]
-        logger.info("New line: %s", line)
+        logger.debug("New line: %s", line)
         result = self.line_processor(line)
         if result:
             logger.info("Match: %s", str(result))
@@ -93,6 +92,9 @@ class MainHandler(tornado.tcpserver.TCPServer):
         self.es_connection = ESConnection(es_host, es_port)
         self.connection_class = kwargs.pop('connection_class')
         super().__init__()
+        logger.info("Stashpy started, accepting connections on {}:{}".format(
+            'localhost',
+            8888))
 
     @gen.coroutine
     def handle_stream(self, stream, address):
