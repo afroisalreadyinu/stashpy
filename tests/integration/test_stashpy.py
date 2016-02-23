@@ -11,6 +11,9 @@ from stashpy import ConnectionHandler, MainHandler
 class KitaHandler(ConnectionHandler):
     SPEC = {'to_dict': ["My name is {name} and I'm {age:d} years old."]}
 
+    def index_callback(self, response):
+        self.stream.write(b"YADA\n")
+
 class FindIn:
     def __init__(self, docs):
         if hasattr(docs, 'body'):
@@ -37,13 +40,12 @@ class StashpyTests(AsyncTestCase):
         main.listen(8888)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         stream = IOStream(s)
-        def send_request():
-            stream.write(b"My name is Yuri and I'm 6 years old.")
-        stream.connect(("localhost", 8888), send_request)
-        def search_result(res):
-            self.assertEqual(len(FindIn(res).by(name='Yuri', age=6)), 1)
+        yield stream.connect(("localhost", 8888))
+        yield stream.write(b"My name is Yuri and I'm 6 years old.\n")
+        yield stream.read_until(b'\n')
         res = yield self.es_client.search(
             search_result,
             index='default',
             type='doc'
         )
+        self.assertEqual(len(FindIn(res).by(name='Yuri', age=6)), 1)
