@@ -8,3 +8,7 @@
 * TODO Load testing
 
 * TODO Add project to a CI and add badges
+
+* TODO Sample startup config
+
+* TODO Garbage collecting finished handlers?
