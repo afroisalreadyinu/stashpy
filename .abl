@@ -1,0 +1,3 @@
+abl-mode-test-file-regexp "test_.*.py"
+abl-mode-test-command "nose2 %s"
+abl-mode-test-path-module-class-separator "."
