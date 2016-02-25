@@ -3,51 +3,58 @@ import json
 import logging
 from uuid import uuid4
 import copy
+import re
 
 from tornado import gen
 import tornado.tcpserver
-from parse import parse
+import parse
 
 from tornadoes import ESConnection
 
 logger = logging.getLogger(__name__)
 
-def is_named_re(maybe_re):
-    return None
+#parsing re's with re's. i'm going to hell for this.
+NAMED_RE_RE = re.compile(r"\(\?P<\w*>.*?\)")
 
-class LineProcessor:
+def is_named_re(maybe_re):
+    found = NAMED_RE_RE.findall(maybe_re)
+    return found
+
+class LineParser:
 
     def __init__(self, spec):
-        self.spec = spec
+        if is_named_re(spec):
+            self.re = re.compile(spec)
+            self.parse = None
+        else:
+            self.re = None
+            self.parse = parse.compile(spec)
 
     def __call__(self, line):
-        for dict_spec in self.spec.get('to_dict', []):
-            dicted = self.to_dict(line, dict_spec)
-            if dicted:
-                return dicted
-        for format_spec,output_spec in self.spec.get('to_format', {}).items():
-            formatted = self.to_format(line, format_spec, output_spec)
-            if formatted:
-                return formatted
-        return None
+        if self.re:
+            import pdb;pdb.set_trace()
+            return self.re.match(line)
+        return self.parse.parse(line)
 
-    def to_dict(self, line, dict_spec):
-        """Parse the line """
+
+class DictSpec:
+
+    def __init__(self, parser):
+        self.parser = parser
+
+    def to_dict(self):
         result = parse(dict_spec, line)
         if result is None:
             return None
         return result.named
 
-    def _format_dict(self, out_dict, value_dict):
-        for key,val in out_dict.items():
-            if isinstance(key, dict):
-                self._format_dict(val, value_dict)
-            else:
-                import pdb;pdb.set_trace()
-                out_dict[key] = val.format(**value_dict)
+class ParseLineParser(LineParser):
 
+    def __init__(self, parser, out_format):
+        self.parser = parser
+        self.out_format = out_format
 
-    def to_format(self, line, format_spec, output_spec):
+    def to_format(self, line):
         """Parse the line """
         result = parse(format_spec, line)
         if result is None:
@@ -55,6 +62,35 @@ class LineProcessor:
         output = copy.deepcopy(output_spec)
         self._format_dict(output, result.named)
         return output
+
+    def _format_dict(self, out_dict, value_dict):
+        for key,val in out_dict.items():
+            if isinstance(key, dict):
+                self._format_dict(val, value_dict)
+            else:
+                out_dict[key] = val.format(**value_dict)
+
+
+
+class LineProcessor:
+
+    def __init__(self, specs):
+        self.dict_specs = [DictSpec(spec) for spec in specs.get('to_dict', [])]
+        self.format_specs = [FormatSpec(format_spec, output_spec)
+                             for format_spec, output_spec in specs.get('to_format', {}).items()]
+
+
+    def __call__(self, line):
+        for dict_parser in self.spec.get('to_dict', []):
+            dicted = dict_parser.to_dict(line)
+            if dicted:
+                return dicted
+        for format_spec in self.spec.get('to_format', {}).items():
+            formatted = self.to_format(line, format_spec, output_spec)
+            if formatted:
+                return formatted
+        return None
+
 
 class ConnectionHandler:
 
