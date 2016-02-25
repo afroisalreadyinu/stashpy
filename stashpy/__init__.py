@@ -2,6 +2,7 @@ import sys
 import json
 import logging
 from uuid import uuid4
+import copy
 
 from tornado import gen
 import tornado.tcpserver
@@ -17,10 +18,14 @@ class LineProcessor:
         self.spec = spec
 
     def __call__(self, line):
-        for dict_spec in self.spec['to_dict']:
+        for dict_spec in self.spec.get('to_dict', []):
             dicted = self.to_dict(line, dict_spec)
             if dicted:
                 return dicted
+        for format_spec,output_spec in self.spec.get('to_format', {}).items():
+            formatted = self.to_format(line, format_spec, output_spec)
+            if formatted:
+                return formatted
         return None
 
     def to_dict(self, line, dict_spec):
@@ -29,6 +34,24 @@ class LineProcessor:
         if result is None:
             return None
         return result.named
+
+    def _format_dict(self, out_dict, value_dict):
+        for key,val in out_dict.items():
+            if isinstance(key, dict):
+                self._format_dict(val, value_dict)
+            else:
+                import pdb;pdb.set_trace()
+                out_dict[key] = val.format(**value_dict)
+
+
+    def to_format(self, line, format_spec, output_spec):
+        """Parse the line """
+        result = parse(format_spec, line)
+        if result is None:
+            return None
+        output = copy.deepcopy(output_spec)
+        self._format_dict(output, result.named)
+        return output
 
 class ConnectionHandler:
 
