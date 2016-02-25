@@ -1,7 +1,7 @@
-* TODO Integration test
-
 * TODO Parsing specification
   How should the parsing specification be supplied?
+
+* TODO Integration test
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 

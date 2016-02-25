@@ -12,6 +12,9 @@ from tornadoes import ESConnection
 
 logger = logging.getLogger(__name__)
 
+def is_named_re(maybe_re):
+    return None
+
 class LineProcessor:
 
     def __init__(self, spec):
