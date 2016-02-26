@@ -103,7 +103,10 @@ class ESIndexer:
 
     def index(self, doc):
         doc_id = str(uuid4())
-        index = datetime.strftime(datetime.now(), self.index_pattern)
+        if '_index_' in doc:
+            index = datetime.strftime(datetime.now(), doc['_index_'])
+        else:
+            index = datetime.strftime(datetime.now(), self.index_pattern)
         return self.es_connection.put(
             index=index,
             type='doc',
