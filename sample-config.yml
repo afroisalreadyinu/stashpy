@@ -1,9 +1,28 @@
-parse_spec:
+processor_spec:
   to_dict:
     - "My name is {name} and I'm {age:d} years old."
 
 port: 8888
 address : '0.0.0.0'
 
-es_host: 'localhost'
-es_port: 9200
+indexer_config:
+  host: localhost
+  port: 9200
+  index_pattern: 'kita-indexer-%Y-%m'
+
+logging:
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+    default:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  handlers:
+    default:
+      class: logging.StreamHandler
+      formatter: default
+      stream: ext://sys.stdout
+      level: 10 #logging.DEBUG
+  root:
+    handlers:
+      - default
+    level: 10 #logging.DEBUG

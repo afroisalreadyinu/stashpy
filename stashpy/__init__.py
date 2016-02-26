@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 #parsing re's with re's. i'm going to hell for this.
 NAMED_RE_RE = re.compile(r"\(\?P<\w*>.*?\)")
 
+DEFAULT_PORT = 8899
+DEFAULT_ADDRESS = '0.0.0.0'
+
 def is_named_re(maybe_re):
     found = NAMED_RE_RE.findall(maybe_re)
     return found
@@ -74,7 +77,6 @@ class FormatSpec:
                 out_dict[key] = val.format(**value_dict)
 
 
-
 class LineProcessor:
 
     def __init__(self, specs):
@@ -126,7 +128,7 @@ class ESIndexer:
 
 class ConnectionHandler:
 
-    def __init__(self, stream, address, server):
+    def __init__(self, stream, address, indexer, line_processor):
         self.stream = stream
         self.address = address
         self.server = server
@@ -167,16 +169,39 @@ class ConnectionHandler:
 class MainHandler(tornado.tcpserver.TCPServer):
 
 
-    def __init__(self, *args, **kwargs):
-        es_host = kwargs.pop('es_host')
-        es_port = kwargs.pop('es_port')
-        self.connection_class = kwargs.pop('connection_class')
+    def __init__(self, es_config, processor_spec=None, processor_class=None):
+        assert processor_spec is not None or processor_class is not None
+        self.processor_spec = processor_spec
+        self.processor_class = processor_class
+        self.es_config = es_config
+        self.es_config.pop('connection', None)
         super().__init__()
-        logger.info("Stashpy started, accepting connections on {}:{}".format(
-            'localhost',
-            8888))
 
     @gen.coroutine
     def handle_stream(self, stream, address):
-        cn = self.connection_class(stream, address, self)
+        if self.processor_spec:
+            cn = ConnectionHandler(stream, address,
+                                   ESConnection(**self.es_config),
+                                   LineProcessor(self.processor_spec))
+        else:
+            #TODO class loading
+            pass
         yield cn.on_connect()
+
+
+DEFAULT_ES_CONF = {'host': 'localhost', 'port': 9200 }
+
+class App:
+    def __init__(self, config):
+        self.config = config
+        self.main = MainHandler(es_config=config.get('es_config', DEFAULT_ES_CONF),
+                                processor_spec=config.get('processor_spec'),
+                                processor_class=config.get('processor_class'))
+
+    def run(self):
+        port = self.config.get('port', DEFAULT_PORT)
+        self.main.listen(port, address=DEFAULT_ADDRESS)
+        logger.info("Stashpy started, accepting connections on {}:{}".format(
+            'localhost',
+            8888))
+        tornado.ioloop.IOLoop.current().start()
