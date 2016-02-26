@@ -1,14 +1,17 @@
-* TODO Parsing specification
-  How should the parsing specification be supplied?
+* TODO Index in spec
 
-* TODO Integration test
+* TODO Regexp escaping problem
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
+
+* TODO Sample startup config
+
+* TODO Integration test
+** TODO Write simple demo of what's wrong
+** TODO Ask SO question
 
 * TODO Load testing
 
 * TODO Add project to a CI and add badges
-
-* TODO Sample startup config
 
 * TODO Garbage collecting finished handlers?

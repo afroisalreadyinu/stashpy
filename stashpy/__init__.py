@@ -94,6 +94,29 @@ class LineProcessor:
                 return formatted
         return None
 
+class ESIndexer:
+
+    def __init__(self, es_host, es_port, connection=ESConnection):
+        self.es_connection = connection(es_host, es_port)
+
+    def index(self, doc):
+        doc_id = str(uuid4())
+        return self.es_connection.put(
+            index='default',
+            type='doc',
+            uid=doc_id,
+            contents=doc,
+            callback=self.index_callback
+        )
+
+    def index_callback(self, response):
+        if 200 <= response.status < 300:
+            logger.info("Successfully indexed doc, id: {}".format(response.effective_url))
+        else:
+            logger.warn("Index request returned response {}, reason: {}".format(
+                response.code,
+                response.reason))
+
 
 class ConnectionHandler:
 
@@ -128,26 +151,8 @@ class ConnectionHandler:
             yield self.index(result)
 
     @gen.coroutine
-    def index(self, doc):
-        doc_id = str(uuid4())
-        yield self.server.es_connection.put(
-            index='default',
-            type='doc',
-            uid=doc_id,
-            contents=doc,
-            callback=self.index_callback
-        )
-
-    def index_callback(self, response):
-        if 200 <= response.status < 300:
-            logger.info("Successfully indexed doc, id: {}".format(response.effective_url))
-        else:
-            logger.warn("Index request returned response {}, reason: {}".format(
-                response.code,
-                response.reason))
-
-    @gen.coroutine
     def on_close(self):
+        #Close es connection?
         logger.info("Connection to %s closed", self.address)
         yield []
 
@@ -159,7 +164,6 @@ class MainHandler(tornado.tcpserver.TCPServer):
     def __init__(self, *args, **kwargs):
         es_host = kwargs.pop('es_host')
         es_port = kwargs.pop('es_port')
-        self.es_connection = ESConnection(es_host, es_port)
         self.connection_class = kwargs.pop('connection_class')
         super().__init__()
         logger.info("Stashpy started, accepting connections on {}:{}".format(
