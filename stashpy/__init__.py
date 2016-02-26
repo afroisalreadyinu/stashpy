@@ -99,8 +99,8 @@ class LineProcessor:
 
 class ESIndexer:
 
-    def __init__(self, es_host, es_port, index_pattern="stashpy-%Y-%m-%d", connection=ESConnection):
-        self.es_connection = connection(es_host, es_port)
+    def __init__(self, host, port, index_pattern="stashpy-%Y-%m-%d", connection=ESConnection):
+        self.es_connection = connection(host, port)
         self.index_pattern = index_pattern
 
     def index(self, doc):
@@ -118,7 +118,7 @@ class ESIndexer:
         )
 
     def index_callback(self, response):
-        if 200 <= response.status < 300:
+        if 200 <= response.code < 300:
             logger.info("Successfully indexed doc, id: {}".format(response.effective_url))
         else:
             logger.warn("Index request returned response {}, reason: {}".format(
@@ -131,9 +131,9 @@ class ConnectionHandler:
     def __init__(self, stream, address, indexer, line_processor):
         self.stream = stream
         self.address = address
-        self.server = server
+        self.indexer = indexer
+        self.line_processor = line_processor
         self.stream.set_close_callback(self.on_close)
-        self.line_processor = LineProcessor(self.SPEC)
         logger.info("Accepted connection from {}".format(address))
 
     @gen.coroutine
@@ -156,7 +156,7 @@ class ConnectionHandler:
         result = self.line_processor(line)
         if result:
             logger.info("Match: %s", str(result))
-            yield self.index(result)
+            yield self.indexer.index(result)
 
     @gen.coroutine
     def on_close(self):
@@ -181,7 +181,7 @@ class MainHandler(tornado.tcpserver.TCPServer):
     def handle_stream(self, stream, address):
         if self.processor_spec:
             cn = ConnectionHandler(stream, address,
-                                   ESConnection(**self.es_config),
+                                   ESIndexer(**self.es_config),
                                    LineProcessor(self.processor_spec))
         else:
             #TODO class loading
