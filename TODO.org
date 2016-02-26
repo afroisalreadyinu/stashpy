@@ -1,5 +1,3 @@
-* TODO Refactor app init
-
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
 * TODO Passing a class in config as handler
