@@ -3,7 +3,7 @@ import unittest
 import stashpy
 
 SAMPLE_PARSE = "My name is {name} and I'm {age:d} years old."
-SAMPLE_REGEXP = "My name is (?P<name>\\w*) and I'm (?P<age>\\d*) years old\."
+SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
 
 class NamedReTests(unittest.TestCase):
 

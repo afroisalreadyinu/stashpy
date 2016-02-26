@@ -1,10 +1,10 @@
-* TODO Index in spec
-
-* TODO Regexp escaping problem
-
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
+* TODO Passing a class in config as handler
+
 * TODO Sample startup config
+
+* TODO Readme
 
 * TODO Integration test
 ** TODO Write simple demo of what's wrong
