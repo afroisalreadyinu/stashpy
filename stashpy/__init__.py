@@ -4,6 +4,7 @@ import logging
 from uuid import uuid4
 import copy
 import re
+from datetime import datetime
 
 from tornado import gen
 import tornado.tcpserver
@@ -96,13 +97,15 @@ class LineProcessor:
 
 class ESIndexer:
 
-    def __init__(self, es_host, es_port, connection=ESConnection):
+    def __init__(self, es_host, es_port, index_pattern="stashpy-%Y-%m-%d", connection=ESConnection):
         self.es_connection = connection(es_host, es_port)
+        self.index_pattern = index_pattern
 
     def index(self, doc):
         doc_id = str(uuid4())
+        index = datetime.strftime(datetime.now(), self.index_pattern)
         return self.es_connection.put(
-            index='default',
+            index=index,
             type='doc',
             uid=doc_id,
             contents=doc,
