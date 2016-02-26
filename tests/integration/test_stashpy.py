@@ -34,9 +34,7 @@ class StashpyTests(AsyncTestCase):
     def test_indexing_line(self):
         self.es_client = ESConnection(io_loop=self.io_loop)
 
-        main = MainHandler(connection_class=KitaHandler,
-                           es_host='localhost',
-                           es_port=9200)
+        main = MainHandler(es_config=dict(host='localhost',port=9200), processor_class=KitaHandler)
         main.listen(8888)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         stream = IOStream(s)
