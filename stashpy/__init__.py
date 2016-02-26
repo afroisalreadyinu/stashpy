@@ -32,35 +32,37 @@ class LineParser:
 
     def __call__(self, line):
         if self.re:
-            import pdb;pdb.set_trace()
-            return self.re.match(line)
-        return self.parse.parse(line)
-
+            match = self.re.match(line)
+            if match is None:
+                return None
+            return {group_name:match.group(group_name)
+                    for group_name in self.re.groupindex}
+        match = self.parse.parse(line)
+        if match is None:
+            return None
+        return match.named
 
 class DictSpec:
 
     def __init__(self, parser):
         self.parser = parser
 
-    def to_dict(self):
-        result = parse(dict_spec, line)
-        if result is None:
-            return None
-        return result.named
+    def __call__(self, line):
+        return self.parser(line)
 
-class ParseLineParser(LineParser):
+class FormatSpec:
 
     def __init__(self, parser, out_format):
         self.parser = parser
         self.out_format = out_format
 
-    def to_format(self, line):
+    def __call__(self, line):
         """Parse the line """
-        result = parse(format_spec, line)
+        result = self.parser(line)
         if result is None:
             return None
-        output = copy.deepcopy(output_spec)
-        self._format_dict(output, result.named)
+        output = copy.deepcopy(self.out_format)
+        self._format_dict(output, result)
         return output
 
     def _format_dict(self, out_dict, value_dict):
@@ -75,18 +77,19 @@ class ParseLineParser(LineParser):
 class LineProcessor:
 
     def __init__(self, specs):
-        self.dict_specs = [DictSpec(spec) for spec in specs.get('to_dict', [])]
-        self.format_specs = [FormatSpec(format_spec, output_spec)
+        self.dict_specs = [DictSpec(LineParser(spec))
+                           for spec in specs.get('to_dict', [])]
+        self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
                              for format_spec, output_spec in specs.get('to_format', {}).items()]
 
 
     def __call__(self, line):
-        for dict_parser in self.spec.get('to_dict', []):
-            dicted = dict_parser.to_dict(line)
+        for dict_spec in self.dict_specs:
+            dicted = dict_spec(line)
             if dicted:
                 return dicted
-        for format_spec in self.spec.get('to_format', {}).items():
-            formatted = self.to_format(line, format_spec, output_spec)
+        for format_spec in self.format_specs:
+            formatted = format_spec(line)
             if formatted:
                 return formatted
         return None
