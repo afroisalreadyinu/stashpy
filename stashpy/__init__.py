@@ -5,6 +5,7 @@ from uuid import uuid4
 import copy
 import re
 from datetime import datetime
+import importlib
 
 from tornado import gen
 import tornado.tcpserver
@@ -153,10 +154,14 @@ class ConnectionHandler:
     def process_line(self, line):
         line = line.decode('utf-8')[:-1]
         logger.debug("New line: %s", line)
-        result = self.line_processor(line)
+        result = self._process(line)
         if result:
             logger.info("Match: %s", str(result))
             yield self.indexer.index(result)
+
+    def _processs(self, line):
+        return self.line_processor(line)
+
 
     @gen.coroutine
     def on_close(self):
@@ -184,8 +189,10 @@ class MainHandler(tornado.tcpserver.TCPServer):
                                    ESIndexer(**self.es_config),
                                    LineProcessor(self.processor_spec))
         else:
-            #TODO class loading
-            pass
+            module_name,class_name = self.processor_class.rsplit('.', 1)
+            module = importlib.import_module(module_name)
+            _class = getattr(module, class_name)
+            cn = _class(stream, address, ESIndexer(**self.es_ocnfig))
         yield cn.on_connect()
 
 

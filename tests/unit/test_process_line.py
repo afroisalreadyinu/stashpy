@@ -67,3 +67,13 @@ class LineProcessorTests(unittest.TestCase):
         processor = stashpy.LineProcessor(SPEC)
         dicted = processor("My name is Valerian and I'm 3 years old.")
         self.assertDictEqual(dicted, {'name': 'Valerian', 'age': '3'})
+
+class KitaHandler(ConnectionHandler):
+
+    def _process(self, line):
+        pass
+
+class MainHandlerTests(unittest.TestCase):
+
+    def test_custom_handler(self):
+        pass
