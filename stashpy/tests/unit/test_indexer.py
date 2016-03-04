@@ -23,7 +23,7 @@ class IndexerTests(unittest.TestCase):
         return_val = indexer.index(doc)
         self.assertEqual(return_val, sentinel)
         index,type,uid,indexed_doc = indexer.es_connection.puts[0]
-        self.assertDictEqual(doc, indexed_doc)
+        self.assertDictEqual(indexed_doc, {'name':'Lilith', 'age': 4})
         self.assertEqual(index, datetime.strftime(datetime.now(), "Kita-Lilith-%Y"))
 
     def test_index_pattern_not_date(self):
@@ -32,5 +32,5 @@ class IndexerTests(unittest.TestCase):
         return_val = indexer.index(doc)
         self.assertEqual(return_val, sentinel)
         index,type,uid,indexed_doc = indexer.es_connection.puts[0]
-        self.assertDictEqual(doc, indexed_doc)
+        self.assertDictEqual(indexed_doc, {'name':'Lilith', 'age': 4})
         self.assertEqual(index, "Kita-Lilith-2016")

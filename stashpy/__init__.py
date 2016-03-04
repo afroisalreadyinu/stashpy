@@ -122,8 +122,10 @@ class ESIndexer:
             index = datetime.strftime(datetime.now(), doc['_index_'])
             if '{' in index and '}' in index:
                 index = index.format(**doc)
+            doc.pop('_index_')
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
+
         return self.es_connection.put(
             index=index,
             type='doc',
