@@ -120,6 +120,8 @@ class ESIndexer:
         doc_id = str(uuid4())
         if '_index_' in doc:
             index = datetime.strftime(datetime.now(), doc['_index_'])
+            if '{' in index and '}' in index:
+                index = index.format(**doc)
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
         return self.es_connection.put(
