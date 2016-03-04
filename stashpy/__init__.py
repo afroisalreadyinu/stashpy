@@ -86,16 +86,27 @@ class LineProcessor:
         self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
                              for format_spec, output_spec in specs.get('to_format', {}).items()]
 
-
-    def __call__(self, line):
+    def do_dict_specs(self, line):
         for dict_spec in self.dict_specs:
             dicted = dict_spec(line)
             if dicted:
                 return dicted
+        return None
+
+    def do_format_specs(self, line):
         for format_spec in self.format_specs:
             formatted = format_spec(line)
             if formatted:
                 return formatted
+        return None
+
+    def for_line(self, line):
+        dict_result = self.do_dict_specs(line)
+        if dict_result:
+            return dict_result
+        format_result = self.do_format_specs(line)
+        if format_result:
+            return format_result
         return None
 
 class ESIndexer:
@@ -160,7 +171,7 @@ class ConnectionHandler:
             yield self.indexer.index(result)
 
     def _processs(self, line):
-        return self.line_processor(line)
+        return self.line_processor.for_line(line)
 
 
     @gen.coroutine
