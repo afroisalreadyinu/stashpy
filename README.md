@@ -1,5 +1,5 @@
 Stashpy aims to be a replacement for Logstash. It is not ready for use
-yet.
+yet. It is Python 3 only.
 
 ## Installing
 

@@ -5,9 +5,12 @@
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
-* TODO doc keys in index name
+* DONE doc keys in index name
+  CLOSED: [2016-03-04 Fri 11:08]
 
 * TODO Readme
+
+* TODO Upload to pypi
 
 * TODO Integration test
 ** TODO Write simple demo of what's wrong
