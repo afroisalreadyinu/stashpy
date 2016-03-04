@@ -125,7 +125,6 @@ class ESIndexer:
             doc.pop('_index_')
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
-
         return self.es_connection.put(
             index=index,
             type='doc',
@@ -170,13 +169,10 @@ class ConnectionHandler:
     def process_line(self, line):
         line = line.decode('utf-8')[:-1]
         logger.debug("New line: %s", line)
-        result = self._process(line)
+        result = self.line_processor.for_line(line)
         if result:
             logger.info("Match: %s", str(result))
             yield self.indexer.index(result)
-
-    def _processs(self, line):
-        return self.line_processor.for_line(line)
 
 
     @gen.coroutine
@@ -231,4 +227,6 @@ class App:
         logger.info("Stashpy started, accepting connections on {}:{}".format(
             'localhost',
             8888))
-        tornado.ioloop.IOLoop.current().start()
+        io_loop = tornado.ioloop.IOLoop.current()
+        if not io_loop._running:
+            io_loop.start()

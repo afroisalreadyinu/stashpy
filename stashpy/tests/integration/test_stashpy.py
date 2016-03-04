@@ -6,13 +6,17 @@ from tornado.testing import AsyncTestCase, gen_test
 from tornadoes import ESConnection
 from tornado.iostream import IOStream
 
-from stashpy import ConnectionHandler, MainHandler
+import stashpy
 
-class KitaHandler(ConnectionHandler):
-    SPEC = {'to_dict': ["My name is {name} and I'm {age:d} years old."]}
+config = {
+    'processor_spec': {'to_dict': "My name is {name} and I'm {age:d} years old."},
+    'port': 8888,
+    'address': 'localhost',
+    'indexer_config': {'host': 'localhost',
+                       'port': 9200,
+                       'index_pattern': 'kita-indexer'}
+}
 
-    def index_callback(self, response):
-        self.stream.write(b"YADA\n")
 
 class FindIn:
     def __init__(self, docs):
@@ -34,16 +38,19 @@ class StashpyTests(AsyncTestCase):
     def test_indexing_line(self):
         self.es_client = ESConnection(io_loop=self.io_loop)
 
-        main = MainHandler(es_config=dict(host='localhost',port=9200), processor_class=KitaHandler)
-        main.listen(8888)
+        app = stashpy.App(config)
+        app.run()
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         stream = IOStream(s)
         yield stream.connect(("localhost", 8888))
         yield stream.write(b"My name is Yuri and I'm 6 years old.\n")
-        yield stream.read_until(b'\n')
+        def search_result(results):
+            result_json = json.loads(results.body.decode('utf-8'))
+            self.assertEqual(len(result_json['hits']['hits']), 1)
         res = yield self.es_client.search(
             search_result,
-            index='default',
-            type='doc'
+            index='kita-indexer',
+            type='doc',
+            source={"query": {"match_all": {}}}
         )
-        self.assertEqual(len(FindIn(res).by(name='Yuri', age=6)), 1)
