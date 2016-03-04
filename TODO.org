@@ -1,4 +1,5 @@
-* TODO Passing a class in config as handler
+* DONE Passing a class in config as handler
+  CLOSED: [2016-03-04 Fri 10:38]
 
 * TODO Sample startup config
 

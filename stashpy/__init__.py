@@ -80,11 +80,12 @@ class FormatSpec:
 
 class LineProcessor:
 
-    def __init__(self, specs):
-        self.dict_specs = [DictSpec(LineParser(spec))
-                           for spec in specs.get('to_dict', [])]
-        self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
-                             for format_spec, output_spec in specs.get('to_format', {}).items()]
+    def __init__(self, specs=None):
+        if specs:
+            self.dict_specs = [DictSpec(LineParser(spec))
+                               for spec in specs.get('to_dict', [])]
+            self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
+                                 for format_spec, output_spec in specs.get('to_format', {}).items()]
 
     def do_dict_specs(self, line):
         for dict_spec in self.dict_specs:
@@ -190,20 +191,23 @@ class MainHandler(tornado.tcpserver.TCPServer):
         self.processor_spec = processor_spec
         self.processor_class = processor_class
         self.es_config = es_config
-        self.es_config.pop('connection', None)
         super().__init__()
 
-    @gen.coroutine
-    def handle_stream(self, stream, address):
+    def _load_processor(self):
         if self.processor_spec:
-            cn = ConnectionHandler(stream, address,
-                                   ESIndexer(**self.es_config),
-                                   LineProcessor(self.processor_spec))
+            line_processor = LineProcessor(self.processor_spec)
         else:
             module_name,class_name = self.processor_class.rsplit('.', 1)
             module = importlib.import_module(module_name)
             _class = getattr(module, class_name)
-            cn = _class(stream, address, ESIndexer(**self.es_ocnfig))
+            line_processor = _class()
+        return line_processor
+
+    @gen.coroutine
+    def handle_stream(self, stream, address):
+        cn = ConnectionHandler(stream, address,
+                               ESIndexer(**self.es_config),
+                               self._load_processor())
         yield cn.on_connect()
 
 
@@ -211,6 +215,7 @@ DEFAULT_ES_CONF = {'host': 'localhost', 'port': 9200 }
 
 class App:
     def __init__(self, config):
+        assert 'processor_spec' in config or 'processor_class' in config
         self.config = config
         self.main = MainHandler(es_config=config.get('es_config', DEFAULT_ES_CONF),
                                 processor_spec=config.get('processor_spec'),
