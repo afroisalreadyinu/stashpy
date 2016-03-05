@@ -1,10 +1,10 @@
-Stashpy aims to be a replacement for Logstash. It is not ready for use
-yet. It is Python 3 only.
+Stashpy aims to be a Python 3 replacement for Logstash. It is still in
+development.
 
 ## Installing
 
-Stashpy is not on pypi, so you need to clone this repo and install it
-in a virtualenv.
+Stashpy is [on PyPI](https://pypi.python.org/pypi/stashpy), so you can
+simply install it as a dependency, or with `pip install stashpy`.
 
 ## Usage
 

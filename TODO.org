@@ -4,7 +4,8 @@
 
 * TODO Readme
 
-* TODO Upload to pypi
+* DONE Upload to pypi
+  CLOSED: [2016-03-05 Sat 12:49]
 
 * Cutoff: From here on it can be deployed for testing
 
