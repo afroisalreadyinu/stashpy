@@ -12,9 +12,8 @@
 
 * TODO Upload to pypi
 
-* TODO Integration test
-** TODO Write simple demo of what's wrong
-** TODO Ask SO question
+* DONE Integration test
+  CLOSED: [2016-03-05 Sat 08:54]
 
 * Cutoff: From here on it can be deployed for testing
 
