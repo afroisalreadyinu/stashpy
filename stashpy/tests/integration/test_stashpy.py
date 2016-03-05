@@ -2,19 +2,23 @@
 for these tests"""
 import socket
 import json
+from urllib.parse import urlencode
+
 from tornado.testing import AsyncTestCase, gen_test
 from tornadoes import ESConnection
 from tornado.iostream import IOStream
+from tornado.httpclient import AsyncHTTPClient
+import tornado.gen
 
 import stashpy
 
 config = {
-    'processor_spec': {'to_dict': "My name is {name} and I'm {age:d} years old."},
+    'processor_spec': {'to_dict': ["My name is {name} and I'm {age:d} years old."]},
     'port': 8888,
     'address': 'localhost',
-    'indexer_config': {'host': 'localhost',
-                       'port': 9200,
-                       'index_pattern': 'kita-indexer'}
+    'es_config': {'host': 'localhost',
+                  'port': 9200,
+                  'index_pattern': 'kita-indexer'}
 }
 
 
@@ -30,13 +34,15 @@ class FindIn:
     def by(self, **specs):
         sentinel = object()
         return [doc for doc in self.docs
-                if all(doc.get(key, sentinel) == val for key,val in specs.items())]
+                if all(doc['_source'].get(key, sentinel) == val for key,val in specs.items())]
 
 class StashpyTests(AsyncTestCase):
 
     @gen_test
     def test_indexing_line(self):
-        self.es_client = ESConnection(io_loop=self.io_loop)
+        client = AsyncHTTPClient()
+        url = "http://localhost:9200/{}/".format(config['es_config']['index_pattern'])
+        resp = yield client.fetch(url, method='DELETE', headers=None, raise_error=False)
 
         app = stashpy.App(config)
         app.run()
@@ -45,12 +51,11 @@ class StashpyTests(AsyncTestCase):
         stream = IOStream(s)
         yield stream.connect(("localhost", 8888))
         yield stream.write(b"My name is Yuri and I'm 6 years old.\n")
-        def search_result(results):
-            result_json = json.loads(results.body.decode('utf-8'))
-            self.assertEqual(len(result_json['hits']['hits']), 1)
-        res = yield self.es_client.search(
-            search_result,
-            index='kita-indexer',
-            type='doc',
-            source={"query": {"match_all": {}}}
-        )
+
+        yield tornado.gen.sleep(2)
+        params = urlencode({'name': 'Yuri'})
+        url = "http://localhost:9200/kita-indexer/doc/_search?q=" + params
+        print(url)
+        resp = yield client.fetch(url)
+        resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
+        self.assertEqual(len(FindIn(resp).by(name='Yuri')), 1)

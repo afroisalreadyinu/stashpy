@@ -9,9 +9,8 @@ import importlib
 
 from tornado import gen
 import tornado.tcpserver
+from tornado.httpclient import AsyncHTTPClient
 import parse
-
-from tornadoes import ESConnection
 
 logger = logging.getLogger(__name__)
 
@@ -112,30 +111,28 @@ class LineProcessor:
 
 class ESIndexer:
 
-    def __init__(self, host, port, index_pattern="stashpy-%Y-%m-%d", connection=ESConnection):
-        self.es_connection = connection(host, port)
+    def __init__(self, host, port, index_pattern="stashpy-%Y-%m-%d", doc_type='doc'):
+        self.base_url = 'http://{}:{}'.format(host, port)
+        self.client = AsyncHTTPClient()
         self.index_pattern = index_pattern
+        self.doc_type = doc_type
 
+    @gen.coroutine
     def index(self, doc):
         doc_id = str(uuid4())
         if '_index_' in doc:
+            import pdb;pdb.set_trace()
             index = datetime.strftime(datetime.now(), doc['_index_'])
             if '{' in index and '}' in index:
                 index = index.format(**doc)
             doc.pop('_index_')
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
-        return self.es_connection.put(
-            index=index,
-            type='doc',
-            uid=doc_id,
-            contents=doc,
-            callback=self.index_callback
-        )
-
-    def index_callback(self, response):
+        url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
+        response = yield self.client.fetch(url, method='POST',
+                                           headers=None, body=json.dumps(doc))
         if 200 <= response.code < 300:
-            logger.info("Successfully indexed doc, id: {}".format(response.effective_url))
+            logger.info("Successfully indexed doc, id: {}".format(doc_id))
         else:
             logger.warn("Index request returned response {}, reason: {}".format(
                 response.code,
@@ -173,6 +170,7 @@ class ConnectionHandler:
         if result:
             logger.info("Match: %s", str(result))
             yield self.indexer.index(result)
+
 
 
     @gen.coroutine
