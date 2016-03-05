@@ -1,7 +1,6 @@
 import unittest
 
 import stashpy
-from .util import MockESConn, sentinel
 
 SAMPLE_PARSE = "My name is {name} and I'm {age:d} years old."
 SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
@@ -78,7 +77,7 @@ class ConnectionHandlerTests(unittest.TestCase):
 
     def test_custom_handler(self):
         main = stashpy.MainHandler(
-            dict(host='localhost', port=9200, connection=MockESConn),
+            dict(host='localhost', port=9200),
             processor_class='stashpy.tests.unit.test_process_line.KitaHandler')
         processor = main._load_processor()
         self.assertIsInstance(processor, KitaHandler)
@@ -87,7 +86,7 @@ class ConnectionHandlerTests(unittest.TestCase):
 
     def test_spec_handler(self):
         main = stashpy.MainHandler(
-            dict(host='localhost', port=9200, connection=MockESConn),
+            dict(host='localhost', port=9200),
             processor_spec={'to_dict': [SAMPLE_PARSE]})
         processor = main._load_processor()
         self.assertIsInstance(processor, stashpy.LineProcessor)

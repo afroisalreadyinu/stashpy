@@ -9,7 +9,7 @@ import importlib
 
 from tornado import gen
 import tornado.tcpserver
-from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import HTTPRequest
 import parse
 
 logger = logging.getLogger(__name__)
@@ -113,15 +113,13 @@ class ESIndexer:
 
     def __init__(self, host, port, index_pattern="stashpy-%Y-%m-%d", doc_type='doc'):
         self.base_url = 'http://{}:{}'.format(host, port)
-        self.client = AsyncHTTPClient()
+        self.client = tornado.httpclient.AsyncHTTPClient()
         self.index_pattern = index_pattern
         self.doc_type = doc_type
 
-    @gen.coroutine
-    def index(self, doc):
+    def _create_request(self, doc):
         doc_id = str(uuid4())
         if '_index_' in doc:
-            import pdb;pdb.set_trace()
             index = datetime.strftime(datetime.now(), doc['_index_'])
             if '{' in index and '}' in index:
                 index = index.format(**doc)
@@ -129,10 +127,15 @@ class ESIndexer:
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
-        response = yield self.client.fetch(url, method='POST',
-                                           headers=None, body=json.dumps(doc))
+        return HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
+
+    @gen.coroutine
+    def index(self, doc):
+        request = self._create_request(doc)
+        response = yield self.client.fetch(request)
         if 200 <= response.code < 300:
-            logger.info("Successfully indexed doc, id: {}".format(doc_id))
+            logger.info("Successfully indexed doc, url: {}".format(
+                response.effective_url))
         else:
             logger.warn("Index request returned response {}, reason: {}".format(
                 response.code,

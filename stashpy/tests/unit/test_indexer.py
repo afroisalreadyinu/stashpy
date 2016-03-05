@@ -1,36 +1,55 @@
 import unittest
 from datetime import datetime
+import json
 
 import stashpy
-from .util import MockESConn, sentinel
-
 
 class IndexerTests(unittest.TestCase):
 
+    def request_body(self, request):
+        return json.loads(request.body.decode('utf-8'))
+
     def test_simple_indexing(self):
+        indexer = stashpy.ESIndexer('localhost', 9200)
         doc = {'name':'Lilith', 'age': 4}
-        indexer = stashpy.ESIndexer('localhost', 9200, connection=MockESConn)
-        return_val = indexer.index(doc)
-        self.assertEqual(return_val, sentinel)
-        index,type,uid,indexed_doc = indexer.es_connection.puts[0]
-        self.assertDictEqual(doc, indexed_doc)
-        self.assertEqual(index, datetime.strftime(datetime.now(), "stashpy-%Y-%m-%d"))
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/stashpy-%Y-%m-%d/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
 
 
     def test_index_pattern_in_doc(self):
+        indexer = stashpy.ESIndexer('localhost', 9200)
         doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-%Y'}
-        indexer = stashpy.ESIndexer('localhost', 9200, connection=MockESConn)
-        return_val = indexer.index(doc)
-        self.assertEqual(return_val, sentinel)
-        index,type,uid,indexed_doc = indexer.es_connection.puts[0]
-        self.assertDictEqual(indexed_doc, {'name':'Lilith', 'age': 4})
-        self.assertEqual(index, datetime.strftime(datetime.now(), "Kita-Lilith-%Y"))
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/Kita-Lilith-%Y/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
 
     def test_index_pattern_not_date(self):
         doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-2016'}
-        indexer = stashpy.ESIndexer('localhost', 9200, connection=MockESConn)
-        return_val = indexer.index(doc)
-        self.assertEqual(return_val, sentinel)
-        index,type,uid,indexed_doc = indexer.es_connection.puts[0]
-        self.assertDictEqual(indexed_doc, {'name':'Lilith', 'age': 4})
-        self.assertEqual(index, "Kita-Lilith-2016")
+        indexer = stashpy.ESIndexer('localhost', 9200)
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/Kita-Lilith-%Y/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
+
+    def test_index_pattern_different_doc_type(self):
+        doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-2016'}
+        indexer = stashpy.ESIndexer('localhost', 9200, doc_type='alternative')
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/Kita-Lilith-%Y/alternative/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
