@@ -1,19 +1,10 @@
-* DONE Passing a class in config as handler
-  CLOSED: [2016-03-04 Fri 10:38]
-
 * TODO Sample startup config
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
-* DONE doc keys in index name
-  CLOSED: [2016-03-04 Fri 11:08]
-
 * TODO Readme
 
 * TODO Upload to pypi
-
-* DONE Integration test
-  CLOSED: [2016-03-05 Sat 08:54]
 
 * Cutoff: From here on it can be deployed for testing
 
