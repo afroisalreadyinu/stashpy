@@ -1,6 +1,6 @@
 processor_spec:
   to_dict:
-    - "Process {} on {} worked for {} secs and produced {} bytes output for user {}"
+    - "Process {process} on {host} worked for {duration} secs and produced {output} bytes output for user {user}"
 
 port: 8888
 address : 'localhost'
@@ -8,7 +8,6 @@ address : 'localhost'
 indexer_config:
   host: localhost
   port: 9200
-  index_pattern: 'stashpy-{cluster}-%Y-%m'
 
 logging:
   version: 1
