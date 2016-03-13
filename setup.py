@@ -1,7 +1,8 @@
 import os
 from setuptools import setup
 
-dependencies = ['parse', 'tornado<4.3', 'tornadoes', 'nose2', 'pyyaml']
+dependencies = ['parse', 'tornado<4.3', 'nose2', 'pyyaml', 'matplotlib']
+
 
 setup(
     name = "stashpy",
