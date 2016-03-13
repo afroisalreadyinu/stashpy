@@ -5,7 +5,6 @@ import json
 from urllib.parse import urlencode
 
 from tornado.testing import AsyncTestCase, gen_test
-from tornadoes import ESConnection
 from tornado.iostream import IOStream
 from tornado.httpclient import AsyncHTTPClient
 import tornado.gen
@@ -21,11 +20,13 @@ config = {
                   'index_pattern': 'kita-indexer'}
 }
 
+def decode(resp):
+    return json.loads(resp.body.decode('utf-8'))
 
 class FindIn:
     def __init__(self, docs):
         if hasattr(docs, 'body'):
-            docs = json.loads(docs.body.decode('utf-8'))
+            docs = decode(docs)
         try:
             self.docs = docs['hits']['hits']
         except KeyError:
@@ -41,6 +42,11 @@ class StashpyTests(AsyncTestCase):
     @gen_test
     def test_indexing_line(self):
         client = AsyncHTTPClient()
+        ping = yield client.fetch("http://localhost:9200/", raise_error=False)
+        if ping.code != 200 or decode(ping)['tagline'] != "You Know, for Search":
+            self.fail("This test requires an ES instance running on localhost")
+
+        #delete if existing
         url = "http://localhost:9200/{}/".format(config['es_config']['index_pattern'])
         resp = yield client.fetch(url, method='DELETE', headers=None, raise_error=False)
 
@@ -55,7 +61,6 @@ class StashpyTests(AsyncTestCase):
         yield tornado.gen.sleep(2)
         params = urlencode({'name': 'Yuri'})
         url = "http://localhost:9200/kita-indexer/doc/_search?q=" + params
-        print(url)
         resp = yield client.fetch(url)
         resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
         self.assertEqual(len(FindIn(resp).by(name='Yuri')), 1)
