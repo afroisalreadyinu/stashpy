@@ -121,11 +121,11 @@ class ESIndexer:
         doc_id = str(uuid4())
         if '_index_' in doc:
             index = datetime.strftime(datetime.now(), doc['_index_'])
-            if '{' in index and '}' in index:
-                index = index.format(**doc)
             doc.pop('_index_')
         else:
             index = datetime.strftime(datetime.now(), self.index_pattern)
+        if '{' in index and '}' in index:
+            index = index.format(**doc)
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
         return HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
 

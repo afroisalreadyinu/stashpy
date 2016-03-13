@@ -20,9 +20,32 @@ class IndexerTests(unittest.TestCase):
         self.assertTrue(request.url.startswith(url_prefix))
         self.assertDictEqual(self.request_body(request), doc)
 
+    def test_index_pattern(self):
+        indexer = stashpy.ESIndexer('localhost', 9200,
+                                    index_pattern='kita-{name}-%Y')
+        doc = {'name':'Lilith', 'age': 4}
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/kita-Lilith-%Y/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
+
 
     def test_index_pattern_in_doc(self):
         indexer = stashpy.ESIndexer('localhost', 9200)
+        doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-%Y'}
+        request = indexer._create_request(doc)
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/Kita-Lilith-%Y/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
+
+    def test_index_pattern_in_doc_priority(self):
+        indexer = stashpy.ESIndexer('localhost', 9200, index_pattern='blah-%Y')
         doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-%Y'}
         request = indexer._create_request(doc)
         url_prefix = datetime.strftime(
