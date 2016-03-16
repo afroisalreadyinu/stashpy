@@ -19,6 +19,7 @@ NAMED_RE_RE = re.compile(r"\(\?P<\w*>.*?\)")
 
 DEFAULT_PORT = 8899
 DEFAULT_ADDRESS = '0.0.0.0'
+DEFAULT_INDEX_PATTERN = "stashpy-%Y-%m-%d"
 
 def is_named_re(maybe_re):
     found = NAMED_RE_RE.findall(maybe_re)
@@ -111,7 +112,7 @@ class LineProcessor:
 
 class ESIndexer:
 
-    def __init__(self, host, port, index_pattern="stashpy-%Y-%m-%d", doc_type='doc'):
+    def __init__(self, host, port, index_pattern=DEFAULT_INDEX_PATTERN, doc_type='doc'):
         self.base_url = 'http://{}:{}'.format(host, port)
         self.client = tornado.httpclient.AsyncHTTPClient()
         self.index_pattern = index_pattern
@@ -119,11 +120,8 @@ class ESIndexer:
 
     def _create_request(self, doc):
         doc_id = str(uuid4())
-        if '_index_' in doc:
-            index = datetime.strftime(datetime.now(), doc['_index_'])
-            doc.pop('_index_')
-        else:
-            index = datetime.strftime(datetime.now(), self.index_pattern)
+        index = datetime.strftime(datetime.now(),
+                                  doc.pop('_index_', self.index_pattern))
         if '{' in index and '}' in index:
             index = index.format(**doc)
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
