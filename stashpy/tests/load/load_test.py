@@ -6,6 +6,7 @@ import random
 import socket
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
+from urllib.parse import urlencode
 from datetime import datetime
 #from matplotlib import pyplot
 import yaml
@@ -47,16 +48,15 @@ def rand_doc(base):
     return doc, vals
 
 
+#TODO Better living through iterators
 def run_step(sock, steps, doc_base):
-    docs_and_vals = [rand_doc(doc_base) for _ in range(steps+1)]
-    docs = [x[0] for x in docs_and_vals]
-    vals = [x[1] for x in docs_and_vals]
-    wait_step = 1.0/steps
-    submitted = 0
-    while submitted < steps:
-        doc = docs.pop()
+    docs_and_vals = [rand_doc(doc_base) for _ in range(steps)]
+    wait_step = 1.0/(steps + 1)
+    vals = []
+    for doc,val in docs_and_vals:
         sock.sendall(doc.encode('utf-8') + b'\n')
-        submitted += 1
+        time.sleep(wait_step)
+        vals.append(val)
     return vals
 
 def check_step(es_host, es_port, vals):
@@ -65,7 +65,6 @@ def check_step(es_host, es_port, vals):
             "query": {"match_all": {}},
             "filter": {}}}}
     url = search_url()
-    time.sleep(5)
     for entry in vals:
         q['query']['filtered']['filter']['and'] = [{'term': {key: value}} for key,value in entry.items()]
         resp = urlopen(url, data=json.dumps(q).encode('utf-8'))
@@ -85,6 +84,9 @@ def main():
     per_second[0] = 1
     for step in per_second:
         vals = run_step(sock, step, config['processor_spec']['to_dict'][0])
+        if step == 1:
+            time.sleep(2)
+        resp = urlopen(Request('http://localhost:9200/stashpy-2016-03-16/_flush', urlencode({'wait_if_ongoing': 'true'}).encode('utf-8'))).read()
         check_step(config['indexer_config']['host'],
                    config['indexer_config']['port'],
                    vals)
