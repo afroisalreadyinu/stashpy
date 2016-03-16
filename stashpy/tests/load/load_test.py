@@ -18,6 +18,7 @@ import stashpy
 PROCESSES = ['nginx', 'uwsgi', 'python3', 'postgres', 'rabbitmq']
 USERS = ['root', 'admini', 'restapi', 'postgres']
 HOSTS = ['api01', 'api02', 'db', 'webserver', 'queue']
+LOAD_DURATION = 5
 
 #Why is ES query syntax so weird?
 
@@ -50,8 +51,8 @@ def rand_doc(base):
 
 #TODO Better living through iterators
 def run_step(sock, steps, doc_base):
-    docs_and_vals = [rand_doc(doc_base) for _ in range(steps)]
-    wait_step = 1.0/(steps + 1)
+    docs_and_vals = [rand_doc(doc_base) for _ in range(5*steps)]
+    wait_step = 5.0/(5*steps + 1)
     vals = []
     for doc,val in docs_and_vals:
         sock.sendall(doc.encode('utf-8') + b'\n')
