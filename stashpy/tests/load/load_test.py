@@ -8,7 +8,7 @@ from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from datetime import datetime
-#from matplotlib import pyplot
+from matplotlib import pyplot
 import yaml
 import json
 import time
@@ -65,11 +65,15 @@ def check_step(es_host, es_port, vals):
             "query": {"match_all": {}},
             "filter": {}}}}
     url = search_url()
+    succeeded = 0
     for entry in vals:
         q['query']['filtered']['filter']['and'] = [{'term': {key: value}} for key,value in entry.items()]
         resp = urlopen(url, data=json.dumps(q).encode('utf-8'))
         hits = json.loads(resp.read().decode('utf-8'))['hits']['total']
-        print(hits)
+        if hits == 1:
+            succeeded += 1
+    return succeeded
+
 
 
 def main():
@@ -80,16 +84,22 @@ def main():
         pass
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((config['address'], config['port']))
-    per_second = list(range(0, 40, 10))
+    per_second = list(range(0, 210, 10))
     per_second[0] = 1
+    success_vals = []
     for step in per_second:
+        print('Doing {} loglines per sec'.format(step))
         vals = run_step(sock, step, config['processor_spec']['to_dict'][0])
         if step == 1:
             time.sleep(2)
         resp = urlopen(Request('http://localhost:9200/stashpy-2016-03-16/_flush', urlencode({'wait_if_ongoing': 'true'}).encode('utf-8'))).read()
-        check_step(config['indexer_config']['host'],
-                   config['indexer_config']['port'],
-                   vals)
+        success_vals.append(check_step(config['indexer_config']['host'],
+                                       config['indexer_config']['port'],
+                                       vals))
+    pyplot.plot(per_second, success_vals)
+    pyplot.xlabel('Log lines per second')
+    pyplot.ylabel('Successful')
+    pyplot.savefig('lines_per_sec.png', bbox_inches='tight')
 
 if __name__ == "__main__":
     main()
