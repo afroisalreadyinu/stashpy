@@ -1,6 +1,6 @@
 processor_spec:
   to_dict:
-    - "Process {process} on {host} worked for {duration} secs and produced {output} bytes output for user {user}"
+    - "Process {process} on {host} worked for {duration:f} secs and produced {output:d} bytes output for user {user}"
 
 port: 8888
 address : 'localhost'
