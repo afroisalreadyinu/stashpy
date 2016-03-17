@@ -10,7 +10,7 @@ Stashpy is still in development.
 
 ## Installing
 
-Stashpy is [on PyPI](https://pypi.python.org/pypi/stashpy), so you can
+In order to use Stashpy, you first need Python 3 on your system. All linux distros have a relatively new version in their official repositories. On Mac OS, the Homebrew version is recommended. Python 3 comes with pyvenv, a built-in version of virtualenv. Stashpy is [on PyPI](https://pypi.python.org/pypi/stashpy), so you can
 simply install it as a dependency, or with `pip install stashpy`.
 
 **Local**:  You are advised to use pyvenv/virtualenv/virtualenvwrapper.
