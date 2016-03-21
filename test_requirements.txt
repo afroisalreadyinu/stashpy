@@ -1,0 +1,10 @@
+cycler==0.10.0
+matplotlib==1.5.1
+numpy==1.10.4
+parse==1.6.6
+pyparsing==2.1.0
+python-dateutil==2.5.1
+pytz==2016.2
+PyYAML==3.11
+six==1.10.0
+tornado==4.2.1
