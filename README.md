@@ -76,4 +76,24 @@ The obvious configuration options are as follows:
 
 ## Parsing Specification
 
-TBW
+Stashpy turns lines (i.e. strings that end with a newline) that are
+supplied through a TCP connection into dictionaries, and indexes these
+in ElasticSearch. There are two methods you can use to specify how to
+go from log lines to dictionaries.
+
+The first is by providing the `processor_spec` option in the
+configuration file. This option can have two keys:
+
+* `to_dict`: A list of strings that are used to turn log lines into
+  dictionaries.
+
+* `to_format`: A list of parse and format options for turning log
+  messages into more complicated dictionary patterns.
+
+For both, the specification can be either in the format specification,
+parsed using the [parse library](https://pypi.python.org/pypi/parse),
+or a regular expression with named patterns.
+
+The other option is by specifying a class that is responsible for
+parsing log lines and returning dictionaries. The path of this class
+can be passed using the `processor_class` option.
