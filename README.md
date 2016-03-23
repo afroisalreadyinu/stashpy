@@ -103,3 +103,11 @@ subclass `stashpy.LineProcessor` and implement the method
 useful methods from the parent class that can be used for more
 specialized processing are `do_format_specs(self, line)`, and
 `do_dict_specs`.
+
+## Testing
+
+One thing that really annoyed me about Logstash was that testing
+patterns was incredibly difficult; the only reliable test could be
+done on the live system. Stashpy aims to make testing patterns
+simpler. In order to test a parsing specification, simply subclass
+`stashpy.tests.PatternTest`.
