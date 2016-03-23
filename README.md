@@ -81,6 +81,8 @@ supplied through a TCP connection into dictionaries, and indexes these
 in ElasticSearch. There are two methods you can use to specify how to
 go from log lines to dictionaries.
 
+### Using `to_dict` and `to_format`
+
 The first is by providing the `processor_spec` option in the
 configuration file. This option can have two keys:
 
@@ -93,16 +95,64 @@ configuration file. This option can have two keys:
 
 For both, the specification can be either in the format specification,
 parsed using the [parse library](https://pypi.python.org/pypi/parse),
-or a regular expression with named patterns.
+or a regular expression with named patterns. For example, the
+following are equivalent ways of parsing the same pattern:
 
-The second option is by specifying a class that is responsible for
-parsing log lines and returning dictionaries. The path of this class
-can be passed using the `processor_class` option. This class must
-subclass `stashpy.LineProcessor` and implement the method
-`for_line(self, line)`, which will be called for each log line. Two
-useful methods from the parent class that can be used for more
-specialized processing are `do_format_specs(self, line)`, and
-`do_dict_specs`.
+* `My name is {name} and I'm {age:d} years old.`
+
+* `My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\.`
+
+Either of these patterns, when included as an element of `to_dict`,
+will parse the sentence `My name is Yuri and I'm 25 years old.`. The
+first one will result in the following Python dictionary:
+
+    {"name": "Yuri", "age": 25}
+
+The second line, however, will not provide a conversion of the `age`
+value into an integer, and will result in the following:
+
+    {"name": "Yuri", "age": "25"}
+
+If you want the parsed data to be subject to further modification and
+conversion, have a look at class-based processing below.
+
+The `to_format` option requires the formatting dictionary to be
+specified as the value for the parsing specification key. In the
+configuration, it would look like this:
+
+    to_format:
+      "Her name is {name} and she's {age:d} years old.":
+        name_line: "Name is {name}"
+        age_line: "Age is {age}"
+
+As you can see, all values in this dictionary are interpolated as
+strings.
+
+### Custom class
+
+The second method of processing log lines is by specifying a class
+that is responsible for accepting them and returning dictionaries. The
+path of this class can be passed using the `processor_class`
+option. This class must subclass `stashpy.LineProcessor` and implement
+the method `for_line(self, line)`, which will be called for each log
+line. Two useful methods from the parent class that can be used for
+more specialized processing are `do_dict_specs(self, line)`, and
+`do_format_specs`. The first method returns the result for the first
+match from the `self.dict_specs` list, while the second does the same
+for the `self.format_specs` attribute. If your class has the class
+attributes `TO_DICT` or `TO_FORMAT`, these will be used to populate
+the instance attributes. The following example is equivalent to what
+happens in the default processing pipeline:
+
+
+### Processing pipeline
+
+The order of processing in Stashpy is relatively
+straightforward. First, the `to_dict` specs are applied; if any of the
+patterns match, the resulting dictionary is returned. If there are no
+such matches, the `to_format` specs are applied, and the result from
+the first match is returned. If you are using a custom class for
+processing, you can introduce your own ordering and logic.
 
 ## Testing
 
@@ -110,4 +160,7 @@ One thing that really annoyed me about Logstash was that testing
 patterns was incredibly difficult; the only reliable test could be
 done on the live system. Stashpy aims to make testing patterns
 simpler. In order to test a parsing specification, simply subclass
-`stashpy.tests.PatternTest`.
+`stashpy.tests.PatternTest`. This class has three methods that can be
+used to process a logline with a parsing specification:
+
+* `process_to_dict(self, to_dict_spec, logline)`:
