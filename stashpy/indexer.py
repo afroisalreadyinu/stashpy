@@ -13,7 +13,7 @@ DEFAULT_INDEX_PATTERN = "stashpy-%Y-%m-%d"
 class ESIndexer:
 
     def __init__(self, host, port, index_pattern=DEFAULT_INDEX_PATTERN, doc_type='doc'):
-        self.base_url = 'http://{}:{}'.format(host, port)
+        self.base_url = 'http://{}:{}'.format(host.rstrip('/'), port)
         self.client = tornado.httpclient.AsyncHTTPClient()
         self.index_pattern = index_pattern
         self.doc_type = doc_type
@@ -24,6 +24,7 @@ class ESIndexer:
                                   doc.pop('_index_', self.index_pattern))
         if '{' in index and '}' in index:
             index = index.format(**doc)
+        doc['@timestamp'] = datetime.now().isoformat()
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
         return tornado.httpclient.HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
 
