@@ -87,13 +87,19 @@ configuration file. This option can have two keys:
 * `to_dict`: A list of strings that are used to turn log lines into
   dictionaries.
 
-* `to_format`: A list of parse and format options for turning log
-  messages into more complicated dictionary patterns.
+* `to_format`: A list of dictionaries whose keys are parsing strings,
+  and values are dictionariers that are to be formatted based on
+  parsed values.
 
 For both, the specification can be either in the format specification,
 parsed using the [parse library](https://pypi.python.org/pypi/parse),
 or a regular expression with named patterns.
 
-The other option is by specifying a class that is responsible for
+The second option is by specifying a class that is responsible for
 parsing log lines and returning dictionaries. The path of this class
-can be passed using the `processor_class` option.
+can be passed using the `processor_class` option. This class must
+subclass `stashpy.LineProcessor` and implement the method
+`for_line(self, line)`, which will be called for each log line. Two
+useful methods from the parent class that can be used for more
+specialized processing are `do_format_specs(self, line)`, and
+`do_dict_specs`.
