@@ -1,4 +1,6 @@
-* TODO Sample startup config
+* TODO What about
+* DONE Sample startup config
+  CLOSED: [2016-03-23 Wed 14:27]
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
