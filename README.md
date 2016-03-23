@@ -170,18 +170,19 @@ used to process a logline with a parsing specification:
   of to format parsing specifications, and returns result.
 
 Here is a sample test:
+```python
+import unittest
 
-    import unittest
+from stashpy.tests import PatternTest
 
-    from stashpy.tests import PatternTest
+class SampleTest(PatternTest):
 
-    class SampleTest(PatternTest):
+    def test_pattern(self):
+        self.assertDictEqual(
+            self.process_to_dict(["My name is {name} and I'm {age:d} years old."],
+                                 "My name is Yuri and I'm 3 years old."),
+            {'name': 'Yuri', 'age': 3})
 
-        def test_pattern(self):
-            self.assertDictEqual(
-                self.process_to_dict(["My name is {name} and I'm {age:d} years old."],
-                                     "My name is Yuri and I'm 3 years old."),
-                {'name': 'Yuri', 'age': 3})
-
-    if __name__ == '__main__':
-        unittest.main()
+if __name__ == '__main__':
+    unittest.main()
+```
