@@ -1,16 +1,15 @@
 import sys
 import json
 import logging
-from uuid import uuid4
 import copy
 import re
-from datetime import datetime
 import importlib
 
 from tornado import gen
 import tornado.tcpserver
-from tornado.httpclient import HTTPRequest
 import parse
+
+from .indexer import ESIndexer
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,6 @@ NAMED_RE_RE = re.compile(r"\(\?P<\w*>.*?\)")
 
 DEFAULT_PORT = 8899
 DEFAULT_ADDRESS = '0.0.0.0'
-DEFAULT_INDEX_PATTERN = "stashpy-%Y-%m-%d"
 
 def is_named_re(maybe_re):
     found = NAMED_RE_RE.findall(maybe_re)
@@ -117,36 +115,6 @@ class LineProcessor:
         if format_result:
             return format_result
         return None
-
-class ESIndexer:
-
-    def __init__(self, host, port, index_pattern=DEFAULT_INDEX_PATTERN, doc_type='doc'):
-        self.base_url = 'http://{}:{}'.format(host, port)
-        self.client = tornado.httpclient.AsyncHTTPClient()
-        self.index_pattern = index_pattern
-        self.doc_type = doc_type
-
-    def _create_request(self, doc):
-        doc_id = str(uuid4())
-        index = datetime.strftime(datetime.now(),
-                                  doc.pop('_index_', self.index_pattern))
-        if '{' in index and '}' in index:
-            index = index.format(**doc)
-        url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
-        return HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
-
-    @gen.coroutine
-    def index(self, doc):
-        request = self._create_request(doc)
-        response = yield self.client.fetch(request)
-        if 200 <= response.code < 300:
-            logger.info("Successfully indexed doc, url: {}".format(
-                response.effective_url))
-        else:
-            logger.warn("Index request returned response {}, reason: {}".format(
-                response.code,
-                response.reason))
-
 
 class ConnectionHandler:
 
