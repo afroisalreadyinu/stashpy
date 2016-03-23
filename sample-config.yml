@@ -2,6 +2,11 @@ processor_spec:
   to_dict:
     - "My name is {name} and I'm {age:d} years old."
 
+  to_format:
+    "Her name is {name} and she's {age:d} years old.":
+      name_line: "Name is {name}"
+      age_line: "Age is {age:d}"
+
 port: 8888
 address : '0.0.0.0'
 
