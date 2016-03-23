@@ -1,10 +1,10 @@
-* TODO What about
 * DONE Sample startup config
   CLOSED: [2016-03-23 Wed 14:27]
 
 * TODO Test running tcp server with tornado and connecting with syslog-ng
 
-* TODO Readme
+* DONE Readme
+  CLOSED: [2016-03-23 Wed 16:02]
 
 * DONE Upload to pypi
   CLOSED: [2016-03-05 Sat 12:49]
