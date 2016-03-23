@@ -40,8 +40,7 @@ class LineParser:
             match = self.re.match(line)
             if match is None:
                 return None
-            return {group_name:match.group(group_name)
-                    for group_name in self.re.groupindex}
+            return match.groupdict()
         match = self.parse.parse(line)
         if match is None:
             return None
@@ -81,11 +80,20 @@ class FormatSpec:
 class LineProcessor:
 
     def __init__(self, specs=None):
+        to_dict_specs, to_format_specs = [], {}
         if specs:
-            self.dict_specs = [DictSpec(LineParser(spec))
-                               for spec in specs.get('to_dict', [])]
-            self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
-                                 for format_spec, output_spec in specs.get('to_format', {}).items()]
+            to_dict_specs = specs.get('to_dict', [])
+            to_format_specs = specs.get('to_format', {})
+        else:
+            if hasattr(self, 'TO_DICT'):
+                to_dict_specs = self.TO_DICT
+            if hasattr(self, 'TO_FORMAT'):
+                to_format_specs = self.TO_FORMAT
+        self.dict_specs = [DictSpec(LineParser(spec))
+                           for spec in to_dict_specs]
+        self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
+                             for format_spec, output_spec in to_format_specs.items()]
+
 
     def do_dict_specs(self, line):
         for dict_spec in self.dict_specs:

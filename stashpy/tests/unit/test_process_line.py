@@ -73,6 +73,12 @@ class KitaHandler(stashpy.LineProcessor):
     def for_line(self, line):
         return dict(val='test')
 
+class KitaHandlerTwo(stashpy.LineProcessor):
+
+    TO_DICT = ["My name is {name} and I'm {age:d} years old."]
+    TO_FORMAT = {"Her name is {name} and she's {age:d} years old.":
+                 {'name_line':"Name is {name}", 'age_line':"Age is {age}"}}
+
 class ConnectionHandlerTests(unittest.TestCase):
 
     def test_custom_handler(self):
@@ -92,3 +98,13 @@ class ConnectionHandlerTests(unittest.TestCase):
         self.assertIsInstance(processor, stashpy.LineProcessor)
         self.assertDictEqual(processor.for_line("My name is Julia and I'm 5 years old."),
                              dict(name='Julia', age=5))
+
+
+    def test_custom_handler_with_specs(self):
+        main = stashpy.MainHandler(
+            dict(host='localhost', port=9200),
+            processor_class='stashpy.tests.unit.test_process_line.KitaHandlerTwo')
+        processor = main._load_processor()
+        self.assertIsInstance(processor, KitaHandlerTwo)
+        self.assertDictEqual(processor.for_line("My name is Juergen and I'm 4 years old."),
+                             dict(name='Juergen', age=4))
