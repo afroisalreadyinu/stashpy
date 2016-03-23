@@ -163,4 +163,25 @@ simpler. In order to test a parsing specification, simply subclass
 `stashpy.tests.PatternTest`. This class has three methods that can be
 used to process a logline with a parsing specification:
 
-* `process_to_dict(self, to_dict_spec, logline)`:
+* `process_to_dict(self, to_dict_spec, logline)`: Processes a list of
+  to dictionary parsing specifications, and returns result.
+
+* `process_to_format(self, to_format_spec, logline)`: Processes a list
+  of to format parsing specifications, and returns result.
+
+Here is a sample test:
+
+    import unittest
+
+    from stashpy.tests import PatternTest
+
+    class SampleTest(PatternTest):
+
+        def test_pattern(self):
+            self.assertDictEqual(
+                self.process_to_dict(["My name is {name} and I'm {age:d} years old."],
+                                     "My name is Yuri and I'm 3 years old."),
+                {'name': 'Yuri', 'age': 3})
+
+    if __name__ == '__main__':
+        unittest.main()
