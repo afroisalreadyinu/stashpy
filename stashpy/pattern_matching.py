@@ -53,7 +53,7 @@ def sub_pattern(match):
         new_pattern = GROK_NEW_PATTERN.format(name=pattern_output, pattern=pattern)
     else:
         new_pattern = pattern
-    return new_pattern
+    return re.sub(GROK_REPLACE_PATTERN, sub_pattern, new_pattern)
 
 def compile(re_pattern):
     new_pattern = re.sub(GROK_REPLACE_PATTERN, sub_pattern, re_pattern)

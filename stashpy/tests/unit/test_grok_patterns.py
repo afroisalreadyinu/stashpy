@@ -26,3 +26,18 @@ class GrokPatternTests(unittest.TestCase):
         self.assertDictEqual(
             compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
             {"name": "Takeshi"})
+
+    def test_pattern_synonym(self):
+        regexp = "My name is %{USER:username} and I'm %{INT} years old"
+        compiled = pattern_matching.compile(regexp)
+        self.assertDictEqual(
+            compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
+            {"username": "Takeshi"})
+
+
+    def test_embedded_patterns(self):
+        regexp = "%{SYSLOGTIMESTAMP:timestamp}"
+        compiled = pattern_matching.compile(regexp)
+        self.assertDictEqual(
+            compiled.match("Mar 23 2016 12:30:20").groupdict(),
+            {"timestamp": "Mar 23 2016 12:30:20"})
