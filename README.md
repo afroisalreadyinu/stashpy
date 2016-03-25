@@ -128,6 +128,19 @@ configuration, it would look like this:
 As you can see, all values in this dictionary are interpolated as
 strings.
 
+### A note about regular expressions
+
+Stashpy uses the [regex package](https://pypi.python.org/pypi/regex),
+instead of the built-in `re` module due to its compatibility with the
+Onigiruma patterns used in
+[Grok](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html). This
+enables you to use the built-in regular expression shortcuts
+[available in
+Grok](https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns). These
+patterns are included in Stashpy, so you don't have to include
+them. If you are surprised by the regular expression behavior, though,
+refer to the regex documentation.
+
 ### Custom class
 
 The second method of processing log lines is by specifying a class
