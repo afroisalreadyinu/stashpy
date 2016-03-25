@@ -45,10 +45,6 @@ class GrokPatternTests(unittest.TestCase):
             compiled.match("Mar   23 12:30:20").groupdict(),
             {"timestamp": "Mar   23 12:30:20"})
 
-    def test_blah(self):
-        rex = '(?:[+-]?(?:[0-9]+)) (?P<syslog_timestamp>[a-zA-Z0-9._-]+)'
-        self.assertIsNotNone(regex.compile(rex).match("13 Mar"))
-
 
     def test_nginx_log(self):
         regexp = '<%{INT}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:host} %{IPORHOST:remote_addr} - %{USERNAME:remote_user}?- \[%{HTTPDATE:time_local}\] \"(?P<method>(GET|PUT|PATCH|POST|DELETE|HEAD|OPTIONS)) %{URIPATH:path}%{URIPARAM:params} HTTP/%{NUMBER:httpversion}\" %{INT:status} %{INT:body_bytes_sent}\"-\" %{QS:http_user_agent}'
