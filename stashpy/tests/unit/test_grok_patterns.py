@@ -18,3 +18,11 @@ class GrokPatternTests(unittest.TestCase):
         self.assertDictEqual(
             compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
             {"name": "Takeshi", "age": '4'})
+
+
+    def test_skip_pattern(self):
+        regexp = "My name is %{USERNAME:name} and I'm %{INT} years old"
+        compiled = pattern_matching.compile(regexp)
+        self.assertDictEqual(
+            compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
+            {"name": "Takeshi"})

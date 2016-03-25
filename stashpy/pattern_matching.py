@@ -46,9 +46,13 @@ GROK_NEW_PATTERN = "(?P<{name}>{pattern})"
 
 def sub_pattern(match):
     match_dict = match.groupdict()
-    pattern_output = match_dict['pattern_output'].lstrip(':')
     pattern = GROK_PATTERNS[match_dict['pattern_name']]
-    new_pattern = GROK_NEW_PATTERN.format(name=pattern_output, pattern=pattern)
+    pattern_output_raw = match_dict['pattern_output']
+    if pattern_output_raw:
+        pattern_output = pattern_output_raw.lstrip(':')
+        new_pattern = GROK_NEW_PATTERN.format(name=pattern_output, pattern=pattern)
+    else:
+        new_pattern = pattern
     return new_pattern
 
 def compile(re_pattern):
