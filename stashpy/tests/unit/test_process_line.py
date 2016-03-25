@@ -1,6 +1,7 @@
 import unittest
 
 import stashpy
+from stashpy.pattern_matching import is_named_re
 
 SAMPLE_PARSE = "My name is {name} and I'm {age:d} years old."
 SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
@@ -8,10 +9,10 @@ SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
 class NamedReTests(unittest.TestCase):
 
     def test_is_re(self):
-        self.assertTrue(stashpy.is_named_re(SAMPLE_REGEXP))
+        self.assertTrue(is_named_re(SAMPLE_REGEXP))
 
     def test_is_parse(self):
-        self.assertFalse(stashpy.is_named_re(SAMPLE_PARSE))
+        self.assertFalse(is_named_re(SAMPLE_PARSE))
 
 class LineParserTests(unittest.TestCase):
 

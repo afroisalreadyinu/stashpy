@@ -2,47 +2,18 @@ import sys
 import json
 import logging
 import copy
-import re
 import importlib
 
 from tornado import gen
 import tornado.tcpserver
-import parse
 
 from .indexer import ESIndexer
+from .pattern_matching import LineParser
 
 logger = logging.getLogger(__name__)
 
-#parsing re's with re's. i'm going to hell for this.
-NAMED_RE_RE = re.compile(r"\(\?P<\w*>.*?\)")
-
 DEFAULT_PORT = 8899
 DEFAULT_ADDRESS = '0.0.0.0'
-
-def is_named_re(maybe_re):
-    found = NAMED_RE_RE.findall(maybe_re)
-    return found
-
-class LineParser:
-
-    def __init__(self, spec):
-        if is_named_re(spec):
-            self.re = re.compile(spec)
-            self.parse = None
-        else:
-            self.re = None
-            self.parse = parse.compile(spec)
-
-    def __call__(self, line):
-        if self.re:
-            match = self.re.match(line)
-            if match is None:
-                return None
-            return match.groupdict()
-        match = self.parse.parse(line)
-        if match is None:
-            return None
-        return match.named
 
 class DictSpec:
 
