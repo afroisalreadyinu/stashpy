@@ -21,7 +21,7 @@ class LineParser:
 
     def __call__(self, line):
         if self.re:
-            match = self.regex.match(line)
+            match = self.re.match(line)
             if match is None:
                 return None
             return match.groupdict()
