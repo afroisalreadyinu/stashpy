@@ -128,7 +128,7 @@ configuration, it would look like this:
 As you can see, all values in this dictionary are interpolated as
 strings.
 
-### A note about regular expressions
+#### A note about regular expressions
 
 Stashpy uses the [regex package](https://pypi.python.org/pypi/regex),
 instead of the built-in `re` module due to its compatibility with the
