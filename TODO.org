@@ -1,7 +1,8 @@
 * DONE Sample startup config
   CLOSED: [2016-03-23 Wed 14:27]
 
-* TODO Test running tcp server with tornado and connecting with syslog-ng
+* DONE Test running tcp server with tornado and connecting with syslog-ng
+  CLOSED: [2016-04-12 Tue 15:39]
 
 * DONE Readme
   CLOSED: [2016-03-23 Wed 16:02]
@@ -11,7 +12,8 @@
 
 * Cutoff: From here on it can be deployed for testing
 
-* TODO Load testing
+* DONE Load testing
+  CLOSED: [2016-04-12 Tue 15:39]
 
 * TODO Add project to a CI and add badges
 
