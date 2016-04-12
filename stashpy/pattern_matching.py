@@ -12,6 +12,7 @@ def is_named_re(maybe_re):
 class LineParser:
 
     def __init__(self, spec):
+        spec = grok_re_preprocess(spec)
         if is_named_re(spec):
             self.re = regex.compile(spec)
             self.parse = None
@@ -55,6 +56,6 @@ def sub_pattern(match):
         new_pattern = pattern
     return regex.sub(GROK_REPLACE_PATTERN, sub_pattern, new_pattern)
 
-def compile(re_pattern):
+def grok_re_preprocess(re_pattern):
     new_pattern = regex.sub(GROK_REPLACE_PATTERN, sub_pattern, re_pattern)
-    return regex.compile(new_pattern)
+    return new_pattern
