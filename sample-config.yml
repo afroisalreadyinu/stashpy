@@ -26,8 +26,8 @@ logging:
       class: logging.StreamHandler
       formatter: default
       stream: ext://sys.stdout
-      level: 10 #logging.DEBUG
+      level: INFO
   root:
     handlers:
       - default
-    level: 10 #logging.DEBUG
+    level: INFO
