@@ -172,7 +172,7 @@ class App:
         self.main.listen(port, address=DEFAULT_ADDRESS)
         logger.info("Stashpy started, accepting connections on {}:{}".format(
             'localhost',
-            8888))
+            port))
         io_loop = tornado.ioloop.IOLoop.current()
         if not io_loop._running:
             io_loop.start()
