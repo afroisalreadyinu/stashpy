@@ -64,3 +64,6 @@ class StashpyTests(AsyncTestCase):
         resp = yield client.fetch(url)
         resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
         self.assertEqual(len(FindIn(resp).by(name='Yuri')), 1)
+        doc = resp_hits[0]['_source']
+        self.assertEqual(doc['@version'], 1)
+        self.assertEqual(doc['message'], "My name is Yuri and I'm 6 years old.")
