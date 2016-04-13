@@ -13,7 +13,7 @@ address : '0.0.0.0'
 indexer_config:
   host: localhost
   port: 9200
-  index_pattern: 'kita-indexer-%Y-%m'
+  index_pattern: 'kita-indexer-%Y-%m-%d'
 
 logging:
   version: 1
