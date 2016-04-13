@@ -165,7 +165,7 @@ class App:
     def __init__(self, config):
         assert 'processor_spec' in config or 'processor_class' in config
         self.config = config
-        self.main = MainHandler(es_config=config.get('es_config', DEFAULT_ES_CONF),
+        self.main = MainHandler(es_config=config.get('indexer_config', DEFAULT_ES_CONF),
                                 processor_spec=config.get('processor_spec'),
                                 processor_class=config.get('processor_class'))
 
