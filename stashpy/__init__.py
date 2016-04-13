@@ -117,6 +117,7 @@ class ConnectionHandler:
         result = self.line_processor.for_line(line)
         if result:
             logger.info("Match: %s", str(result))
+            result['message'] = line
             yield self.indexer.index(result)
 
 
