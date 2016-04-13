@@ -43,15 +43,14 @@ no sample configuration for that, but it shouldn't be too difficult.
 ## Usage
 
 As can be seen from the extension of `sample-config.yml`, the
-configuration format is YAML. The configuration options not related to
-parsing specification are the following:
+configuration format is YAML. Configuration options are the following:
 
 * `address`, `port`: The address and port on which Stashpy should listen.
 
 * `indexer_config`: Configuration options for the ElasticSearch
   cluster to index on. Must have the following keys:
 
-  - `host`: ElasticSearch host
+  - `host`: ES host
 
   - `port`: ES port
 
@@ -60,40 +59,67 @@ parsing specification are the following:
     [`datetime.strftime`](https://docs.python.org/3/library/datetime.html#datetime.date.strftime),
     and will then be formatted with the parsed values dictionary.
 
-* `logging`: This configuration option will be passed on as-is to the
+* `logging`: This option will be passed on as-is to the
   `logging.config.dictConfig` method. If it is not supplied,
-  `stashpy.main.DEFAULT_LOGGING` will be used.
+  `stashpy.main.DEFAULT_LOGGING`, which simply logs to stdout, will be
+  used.
 
 * `processor_spec`: The parsing specification. See the next section
   for details.
 
+
 ## Parsing Specification
 
-Stashpy turns lines (i.e. strings that end with a newline) that are
-supplied through a TCP connection into dictionaries, and indexes these
-in ElasticSearch. There are two methods you can use to specify how to
-go from log lines to dictionaries.
+Stashpy turns log lines (i.e. strings that end with a newline)
+supplied through a TCP connection into JSON documents, and indexes
+these in ElasticSearch. The log lines are parsed using regular
+expressions, which can be specified in one of two different formats:
+the **parse format**, or **Oniguruma-flavored named regular
+expressions**. The first of these is a normal Python 3 formattable
+string that is processed using the [parse
+library](https://pypi.python.org/pypi/parse). An example for such an
+expression is the following:
 
-### Using `to_dict` and `to_format`
+* `My name is {name} and I'm {age:d} years old`
 
-The first is by providing the `processor_spec` option in the
+Parsing the sentence `My name is Afro and I'm 40 years old` would lead
+to the JSON document `{"age": 40, "name": "Afro"}`.
+
+The second format, Oniguruma-flavored regular expressions, uses the
+[regex library](https://pypi.python.org/pypi/regex) to provide an
+experience similar to that of the [grok plugin for
+Logstash](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html). In
+an Oniguruma RE, you can build complex regular expressions by
+combining simpler components [??]. For example, take the following
+regular expression:
+
+* `My name is %{USERNAME:name} and I'm %{INT:age} years old`
+
+This expression, when used as a specification, leads to the following
+regular expression:
+
+* `My name is (?P<name>[a-zA-Z0-9._-]+) and I'm (?P<age>(?:[+-]?(?:[0-9]+))) years old`
+
+See the file `stashpy/patterns/grok_patterns.txt` for a list of the
+various components you can use in your regular expressions.
+
+### By `processor_spec`
+
+The first method is by providing the `processor_spec` option in the
 configuration file. This option can have two keys:
 
-* `to_dict`: A list of strings that are used to turn log lines into
-  dictionaries.
+* `to_dict`: A list of expressions that are turned into JSON documents
+  without further processing.
 
-* `to_format`: A list of dictionaries whose keys are parsing strings,
+* `to_format`: A list of dictionaries whose keys are specifications
   and values are dictionariers that are to be formatted based on
   parsed values.
 
 For both, the specification can be either in the format specification,
-parsed using the [parse library](https://pypi.python.org/pypi/parse),
+parsed using the
 or a regular expression with named patterns. For example, the
 following are equivalent ways of parsing the same pattern:
 
-* `My name is {name} and I'm {age:d} years old.`
-
-* `My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\.`
 
 Either of these patterns, when included as an element of `to_dict`,
 will parse the sentence `My name is Yuri and I'm 25 years old.`. The
