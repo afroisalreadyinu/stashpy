@@ -118,6 +118,7 @@ class ConnectionHandler:
         if result:
             logger.info("Match: %s", str(result))
             result['message'] = line
+            result['@version'] = 1
             yield self.indexer.index(result)
 
 
