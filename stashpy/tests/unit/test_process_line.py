@@ -80,7 +80,7 @@ class KitaHandlerTwo(stashpy.LineProcessor):
     TO_FORMAT = {"Her name is {name} and she's {age:d} years old.":
                  {'name_line':"Name is {name}", 'age_line':"Age is {age}"}}
 
-class ConnectionHandlerTests(unittest.TestCase):
+class MainHandlerTests(unittest.TestCase):
 
     def test_custom_handler(self):
         main = stashpy.MainHandler(
