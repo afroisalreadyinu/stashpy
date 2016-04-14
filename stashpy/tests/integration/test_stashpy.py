@@ -11,13 +11,14 @@ import tornado.gen
 
 import stashpy
 
-config = {
+CONFIG = {
     'processor_spec': {'to_dict': ["My name is {name} and I'm {age:d} years old."]},
     'port': 8888,
     'address': 'localhost',
-    'es_config': {'host': 'localhost',
-                  'port': 9200,
-                  'index_pattern': 'kita-indexer'}
+    'indexer_config': {'host': 'localhost',
+                       'port': 9200,
+                       'index_pattern': 'kita-indexer'
+    }
 }
 
 def decode(resp):
@@ -47,10 +48,10 @@ class StashpyTests(AsyncTestCase):
             self.fail("This test requires an ES instance running on localhost")
 
         #delete if existing
-        url = "http://localhost:9200/{}/".format(config['es_config']['index_pattern'])
+        url = "http://localhost:9200/{}/".format(CONFIG['indexer_config']['index_pattern'])
         resp = yield client.fetch(url, method='DELETE', headers=None, raise_error=False)
 
-        app = stashpy.App(config)
+        app = stashpy.App(CONFIG)
         app.run()
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -58,12 +59,20 @@ class StashpyTests(AsyncTestCase):
         yield stream.connect(("localhost", 8888))
         yield stream.write(b"My name is Yuri and I'm 6 years old.\n")
 
-        yield tornado.gen.sleep(2)
-        params = urlencode({'name': 'Yuri'})
-        url = "http://localhost:9200/kita-indexer/doc/_search?q=" + params
-        resp = yield client.fetch(url)
-        resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
-        self.assertEqual(len(FindIn(resp).by(name='Yuri')), 1)
+        #yield tornado.gen.sleep(4)
+        #wait for the index to appear
+        tries = 10
+        while tries:
+            tries -= 1
+            self.assertTrue(tries > 0, "Max tries reached, index was not created")
+            url = "http://localhost:9200/{}/_search?q=*:*".format(CONFIG['indexer_config']['index_pattern'])
+            resp = yield client.fetch(url, method='GET', headers=None, raise_error=False)
+            print(resp.code)
+            if resp.code == 200:
+                resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
+                if len(FindIn(resp).by(name='Yuri')) == 1:
+                    break
+        import pdb;pdb.set_trace()
         doc = resp_hits[0]['_source']
         self.assertEqual(doc['@version'], 1)
         self.assertEqual(doc['message'], "My name is Yuri and I'm 6 years old.")
