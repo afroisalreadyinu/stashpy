@@ -9,6 +9,54 @@ from tornado import gen
 logger = logging.getLogger(__name__)
 
 DEFAULT_INDEX_PATTERN = "stashpy-%Y-%m-%d"
+TEMPLATE_NAME = 'stashpy_template'
+INDEX_TEMPLATE = {
+  "template" : "*",
+  "settings" : {
+    "index.refresh_interval" : "5s"
+  },
+  "mappings" : {
+    "_default_" : {
+      "_all" : {"enabled" : True, "omit_norms" : True},
+      "dynamic_templates" : [ {
+        "message_field" : {
+          "match" : "message",
+          "match_mapping_type" : "string",
+          "mapping" : {
+            "type" : "string", "index" : "analyzed", "omit_norms" : True,
+            "fielddata" : { "format" : "disabled" }
+          }
+        }
+      }, {
+        "string_fields" : {
+          "match" : "*",
+          "match_mapping_type" : "string",
+          "mapping" : {
+            "type" : "string", "index" : "analyzed", "omit_norms" : True,
+            "fielddata" : { "format" : "disabled" },
+            "fields" : {
+              "raw" : {"type": "string", "index" : "not_analyzed", "ignore_above" : 256}
+            }
+          }
+        }
+      } ],
+      "properties" : {
+        "@timestamp": { "type": "date" },
+        "@version": { "type": "string", "index": "not_analyzed" },
+        "geoip"  : {
+          "dynamic": True,
+          "properties" : {
+            "ip": { "type": "ip" },
+            "location" : { "type" : "geo_point" },
+            "latitude" : { "type" : "float" },
+            "longitude" : { "type" : "float" }
+          }
+        }
+      }
+    }
+  }
+}
+
 
 class ESIndexer:
 
@@ -17,6 +65,23 @@ class ESIndexer:
         self.client = tornado.httpclient.AsyncHTTPClient()
         self.index_pattern = index_pattern
         self.doc_type = doc_type
+        self._check_template()
+
+    @gen.coroutine
+    def _check_template(self):
+        #see whether there is a template
+        url = self.base_url + "/_template/"
+        request = tornado.httpclient.HTTPRequest(url, method='GET', headers=None)
+        response = yield self.client.fetch(request)
+        templates = json.loads(response.body.decode('utf-8'))
+        if 'stashpy_template' in templates:
+            return
+        url = self.base_url + "/_template/{}/".format(TEMPLATE_NAME)
+        request = tornado.httpclient.HTTPRequest(url, method='PUT', headers=None, body=json.dumps(INDEX_TEMPLATE))
+        response = yield self.client.fetch(request)
+        ack = json.loads(response.body.decode('utf-8'))
+        #TODO check ack
+
 
     def _create_request(self, doc):
         doc_id = str(uuid4())
