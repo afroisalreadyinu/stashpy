@@ -89,7 +89,8 @@ class ESIndexer:
                                   doc.pop('_index_', self.index_pattern))
         if '{' in index and '}' in index:
             index = index.format(**doc)
-        doc['@timestamp'] = datetime.now().isoformat()
+        if '@timestamp' not in doc:
+            doc['@timestamp'] = datetime.now().isoformat()
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
         return tornado.httpclient.HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
 

@@ -35,6 +35,17 @@ class IndexerTests(unittest.TestCase):
         self.assertTrue(request.url.startswith(url_prefix))
         self.assertDictEqualWithTimestamp(self.request_body(request), doc)
 
+    def test_skip_timestamp(self):
+        indexer = stashpy.ESIndexer('localhost', 9200)
+        doc = {'name':'Lilith', 'age': 4, '@timestamp': 'whatever'}
+        request = indexer._create_request(copy.copy(doc))
+        url_prefix = datetime.strftime(
+            datetime.now(),
+            'http://localhost:9200/stashpy-%Y-%m-%d/doc/'
+        )
+        self.assertTrue(request.url.startswith(url_prefix))
+        self.assertDictEqual(self.request_body(request), doc)
+
     def test_index_pattern(self):
         indexer = stashpy.ESIndexer('localhost', 9200,
                                     index_pattern='kita-{name}-%Y')
