@@ -2,6 +2,7 @@
 for these tests"""
 import socket
 import json
+import os
 from urllib.parse import urlencode
 
 from tornado.testing import AsyncTestCase, gen_test
@@ -20,6 +21,12 @@ CONFIG = {
                        'index_pattern': 'kita-indexer'
     }
 }
+
+#depending on the system, it takes a while for ES to create the index
+#when the first document is indexed, and make it available for
+#search. This timeout specifies how long the IOLoop should run before
+#erroring with time out.
+MAX_TIMEOUT = 8
 
 def decode(resp):
     return json.loads(resp.body.decode('utf-8'))
@@ -40,9 +47,9 @@ class FindIn:
 
 class StashpyTests(AsyncTestCase):
 
-    @gen_test
+    @gen_test(timeout=MAX_TIMEOUT)
     def test_indexing_line(self):
-        client = AsyncHTTPClient()
+        client = AsyncHTTPClient(io_loop=self.io_loop)
         ping = yield client.fetch("http://localhost:9200/", raise_error=False)
         if ping.code != 200 or decode(ping)['tagline'] != "You Know, for Search":
             self.fail("This test requires an ES instance running on localhost")
@@ -59,20 +66,11 @@ class StashpyTests(AsyncTestCase):
         yield stream.connect(("localhost", 8888))
         yield stream.write(b"My name is Yuri and I'm 6 years old.\n")
 
-        #yield tornado.gen.sleep(4)
-        #wait for the index to appear
-        tries = 10
-        while tries:
-            tries -= 1
-            self.assertTrue(tries > 0, "Max tries reached, index was not created")
-            url = "http://localhost:9200/{}/_search?q=*:*".format(CONFIG['indexer_config']['index_pattern'])
-            resp = yield client.fetch(url, method='GET', headers=None, raise_error=False)
-            print(resp.code)
-            if resp.code == 200:
-                resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
-                if len(FindIn(resp).by(name='Yuri')) == 1:
-                    break
-        import pdb;pdb.set_trace()
+        yield tornado.gen.sleep(MAX_TIMEOUT-2)
+        url = "http://localhost:9200/{}/_search?q=*:*".format(CONFIG['indexer_config']['index_pattern'])
+        resp = yield client.fetch(url, method='GET', headers=None, raise_error=False)
+        resp_hits = json.loads(resp.body.decode('utf-8'))['hits']['hits']
+        self.assertEqual(len(FindIn(resp).by(name='Yuri')), 1)
         doc = resp_hits[0]['_source']
         self.assertEqual(doc['@version'], 1)
         self.assertEqual(doc['message'], "My name is Yuri and I'm 6 years old.")
