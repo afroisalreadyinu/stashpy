@@ -2,6 +2,7 @@ from uuid import uuid4
 from datetime import datetime
 import json
 import logging
+import pytz
 
 import tornado.httpclient
 from tornado import gen
@@ -90,7 +91,7 @@ class ESIndexer:
         if '{' in index and '}' in index:
             index = index.format(**doc)
         if '@timestamp' not in doc:
-            doc['@timestamp'] = datetime.now().isoformat()
+            doc['@timestamp'] = datetime.utcnow().replace(tzinfo=pytz.utc).isoformat()
         url = self.base_url + "/{}/{}/{}".format(index, self.doc_type, doc_id)
         return tornado.httpclient.HTTPRequest(url, method='POST', headers=None, body=json.dumps(doc))
 
