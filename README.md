@@ -18,7 +18,7 @@ version is recommended.
 Among the various methods of installing package dependencies,
 virtualenv is recommended. Python 3.5 comes with pyvenv, which is a
 built-in equivalent of virtualenv. For earlier versions, you will need
-to manually install virtualenv with `sudo pip install virtualenv.  If
+to manually install virtualenv with `sudo pip install virtualenv`.  If
 you already have a 2.* version of Python installed together with
 virtualenv, you can install Python 3 and call virtualenv with the
 `--python` argument to use the new version, as in `virtualenv stashpy
