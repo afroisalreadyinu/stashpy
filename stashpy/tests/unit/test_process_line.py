@@ -1,7 +1,10 @@
 import unittest
+from tornado.testing import AsyncTestCase, gen_test
+from tornado import gen
 
 import stashpy
 from stashpy.pattern_matching import is_named_re
+from .common import TimeStampedMixin
 
 SAMPLE_PARSE = "My name is {name} and I'm {age:d} years old."
 SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
@@ -68,6 +71,32 @@ class LineProcessorTests(unittest.TestCase):
         processor = stashpy.LineProcessor(SPEC)
         dicted = processor.for_line("My name is Valerian and I'm 3 years old.")
         self.assertDictEqual(dicted, {'name': 'Valerian', 'age': '3'})
+
+class MockStream:
+    def set_close_callback(*args, **kwargs): pass
+
+class MockIndexer:
+    @gen.coroutine
+    def index(self, doc):
+        if not hasattr(self, 'indexed'):
+            self.indexed = []
+        self.indexed.append(doc)
+        return doc
+
+class ConnectionHandlerTests(AsyncTestCase, TimeStampedMixin):
+
+    @gen_test
+    def test_no_parse(self):
+        SPEC = {'to_dict':[SAMPLE_PARSE]}
+        processor = stashpy.LineProcessor(SPEC)
+        indexer = MockIndexer()
+        handler = stashpy.ConnectionHandler(MockStream(), None, indexer, processor)
+        resp = yield handler.process_line(b"A random line")
+        self.assertEqual(len(indexer.indexed), 1)
+        self.assertDictEqualWithTimestamp(
+            indexer.indexed[0],
+            {'message': 'A random line', '@version': 1})
+
 
 class KitaHandler(stashpy.LineProcessor):
 
