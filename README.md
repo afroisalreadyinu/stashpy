@@ -21,8 +21,8 @@ built-in equivalent of virtualenv. For earlier versions, you will need
 to manually install virtualenv with `sudo pip install virtualenv`.  If
 you already have a 2.* version of Python installed together with
 virtualenv, you can install Python 3 and call virtualenv with the
-`--python` argument to use the new version, as in `virtualenv stashpy
---python \`which python3\``.
+`--python` argument to use the new version, as in ``virtualenv stashpy
+--python `which python3` ``.
 
 It is possible to install Stashpy simply as a dependency or with `pip
 install stashpy` as it is [on
