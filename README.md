@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/afroisalreadyinu/stashpy.svg?branch=master)](https://travis-ci.org/afroisalreadyinu/stashpy)
+[![PyPI version](https://badge.fury.io/py/stashpy.svg)](https://badge.fury.io/py/stashpy)
 
 ## What is this?
 
