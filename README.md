@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/afroisalreadyinu/stashpy.svg?branch=master)](https://travis-ci.org/afroisalreadyinu/stashpy)
+
 ## What is this?
 
 Stashpy aims to be a slimmed-down Python 3 replacement for
