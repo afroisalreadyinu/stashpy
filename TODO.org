@@ -1,5 +1,9 @@
 * TODO Add tests for ConnectionHandler
 
+* TODO Error handling
+
+* TODO Garbage collecting finished handlers?
+
 * DONE Sample startup config
   CLOSED: [2016-03-23 Wed 14:27]
 
@@ -12,11 +16,8 @@
 * DONE Upload to pypi
   CLOSED: [2016-03-05 Sat 12:49]
 
-* Cutoff: From here on it can be deployed for testing
-
 * DONE Load testing
   CLOSED: [2016-04-12 Tue 15:39]
 
-* TODO Add project to a CI and add badges
-
-* TODO Garbage collecting finished handlers?
+* DONE Add project to a CI and add badges
+  CLOSED: [2016-04-28 Thu 11:15]
