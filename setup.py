@@ -3,11 +3,11 @@ from setuptools import setup
 
 dependencies = ['parse>=1.6',
                 'tornado<4.3',
-                'pyyaml==3.*',
-                'pytz==2016.*',
-                'python-dateutil==2.5.*',
-                'regex==2016.*']
-test_dependencies = ['nose2==0.6.*', 'matplotlib==1.5.*']
+                'pyyaml>=3.0',
+                'pytz>=2016',
+                'python-dateutil>=2.5',
+                'regex>=2016']
+test_dependencies = ['nose2>=0.6', 'matplotlib>=1.5']
 
 setup(
     name = "stashpy",
