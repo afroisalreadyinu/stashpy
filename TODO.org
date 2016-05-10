@@ -1,3 +1,9 @@
+* TODO No indexing if there is no ES config
+
+* TODO Index types for fields
+
+* TODO What if ES goes down?
+
 * TODO Add tests for ConnectionHandler
 
 * TODO Error handling
