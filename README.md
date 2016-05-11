@@ -51,7 +51,9 @@ configuration format is YAML. Configuration options are the following:
 * `address`, `port`: The address and port on which Stashpy should listen.
 
 * `indexer_config`: Configuration options for the ElasticSearch
-  cluster to index on. Must have the following keys:
+  cluster to index on. If this key is excluded, nothing will be
+  indexed, which is a useful setup for debugging purposes. Must have
+  the following keys:
 
   - `host`: ES host
 

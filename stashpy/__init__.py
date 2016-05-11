@@ -135,7 +135,9 @@ class ConnectionHandler:
         logger.info("Connection to %s closed", self.address)
         yield []
 
-
+class MockIndexer:
+    def index(self, doc):
+        pass
 
 class MainHandler(tornado.tcpserver.TCPServer):
 
@@ -159,19 +161,21 @@ class MainHandler(tornado.tcpserver.TCPServer):
 
     @gen.coroutine
     def handle_stream(self, stream, address):
+        if self.es_config is None:
+            indexer = MockIndexer()
+        else:
+            indexer = ESIndexer(**self.es_config)
         cn = ConnectionHandler(stream, address,
                                ESIndexer(**self.es_config),
                                self._load_processor())
         yield cn.on_connect()
 
 
-DEFAULT_ES_CONF = {'host': 'localhost', 'port': 9200 }
-
 class App:
     def __init__(self, config):
         assert 'processor_spec' in config or 'processor_class' in config
         self.config = config
-        self.main = MainHandler(es_config=config.get('indexer_config', DEFAULT_ES_CONF),
+        self.main = MainHandler(es_config=config.get('indexer_config'),
                                 processor_spec=config.get('processor_spec'),
                                 processor_class=config.get('processor_class'))
 

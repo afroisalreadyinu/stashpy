@@ -138,3 +138,10 @@ class MainHandlerTests(unittest.TestCase):
         self.assertIsInstance(processor, KitaHandlerTwo)
         self.assertDictEqual(processor.for_line("My name is Juergen and I'm 4 years old."),
                              dict(name='Juergen', age=4))
+
+    def test_no_indexer(self):
+        main = stashpy.MainHandler(
+            None,
+            processor_class='stashpy.tests.unit.test_process_line.KitaHandler')
+        processor = main._load_processor()
+        self.assertDictEqual(processor.for_line("blah"), dict(val='test'))
