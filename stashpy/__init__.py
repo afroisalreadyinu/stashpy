@@ -117,13 +117,13 @@ class ConnectionHandler:
         line = line.decode('utf-8').rstrip('\n')
         logger.debug("New line: %s", line)
         result = self.line_processor.for_line(line)
-        if result:
+        if result is None:
+            logger.info("Line not parsed, storing whole message")
+            result = {'message': line, '@version': 1}
+        else:
             logger.info("Match: %s", str(result))
             result['message'] = line
             result['@version'] = 1
-        else:
-            logger.info("Line not parsed, storing whole message")
-            result = {'message': line, '@version': 1}
         if '@timestamp' not in result:
             result['@timestamp'] = datetime.utcnow().replace(tzinfo=pytz.utc).isoformat()
         yield self.indexer.index(result)
