@@ -1,4 +1,5 @@
-* TODO No indexing if there is no ES config
+* DONE No indexing if there is no ES config
+  CLOSED: [2016-05-11 Wed 09:27]
 
 * TODO Index types for fields
 
