@@ -1,5 +1,6 @@
-* DONE No indexing if there is no ES config
-  CLOSED: [2016-05-11 Wed 09:27]
+* TODO Better logging
+** TODO Log on connection from client
+** TODO Log number of messages on heartbeat
 
 * TODO Index types for fields
 
@@ -28,3 +29,6 @@
 
 * DONE Add project to a CI and add badges
   CLOSED: [2016-04-28 Thu 11:15]
+
+* DONE No indexing if there is no ES config
+  CLOSED: [2016-05-11 Wed 09:27]
