@@ -118,10 +118,10 @@ class ConnectionHandler:
         logger.debug("New line: %s", line)
         result = self.line_processor.for_line(line)
         if result is None:
-            logger.info("Line not parsed, storing whole message")
+            logger.debug("Line not parsed, storing whole message")
             result = {'message': line, '@version': 1}
         else:
-            logger.info("Match: %s", str(result))
+            logger.debug("Match: %s", str(result))
             result['message'] = line
             result['@version'] = 1
         if '@timestamp' not in result:

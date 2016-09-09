@@ -1,6 +1,12 @@
 * TODO Better logging
-** TODO Log on connection from client
 ** TODO Log number of messages on heartbeat
+** DONE Log on connection from client
+   CLOSED: [2016-09-09 Fri 15:05]
+
+* TODO Parse stack traces
+
+* TODO Use attrs
+  https://attrs.readthedocs.io/en/stable/
 
 * TODO Index types for fields
 
