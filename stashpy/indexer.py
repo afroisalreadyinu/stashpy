@@ -97,9 +97,9 @@ class ESIndexer:
         request = self._create_request(doc)
         response = yield self.client.fetch(request)
         if 200 <= response.code < 300:
-            logger.info("Successfully indexed doc, url: {}".format(
+            logger.debug("Successfully indexed doc, url: {}".format(
                 response.effective_url))
         else:
-            logger.warn("Index request returned response {}, reason: {}".format(
+            logger.info("Index request returned response {}, reason: {}".format(
                 response.code,
                 response.reason))
