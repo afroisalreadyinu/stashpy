@@ -14,6 +14,7 @@ import json
 import time
 
 import stashpy
+from stashpy.indexer import DEFAULT_INDEX_PATTERN
 
 PROCESSES = ['nginx', 'uwsgi', 'python3', 'postgres', 'rabbitmq']
 USERS = ['root', 'admini', 'restapi', 'postgres']
@@ -29,11 +30,11 @@ def get_config():
     return config
 
 def index_url():
-    index = datetime.strftime(datetime.now(), stashpy.DEFAULT_INDEX_PATTERN)
+    index = datetime.strftime(datetime.now(), DEFAULT_INDEX_PATTERN)
     return 'http://localhost:9200/{}'.format(index)
 
 def search_url():
-    index = datetime.strftime(datetime.now(), stashpy.DEFAULT_INDEX_PATTERN)
+    index = datetime.strftime(datetime.now(), DEFAULT_INDEX_PATTERN)
     return 'http://localhost:9200/{}/doc/_search'.format(index)
 
 
