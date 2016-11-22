@@ -6,7 +6,7 @@ import logging.config
 import tornado.ioloop
 import yaml
 
-from stashpy import MainHandler
+from .handler import MainHandler
 from stashpy import constants
 
 logger = logging.getLogger(__name__)

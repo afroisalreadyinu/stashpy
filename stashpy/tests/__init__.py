@@ -1,4 +1,4 @@
-from stashpy import LineProcessor
+from stashpy.processor import LineProcessor
 import unittest
 
 class PatternTest(unittest.TestCase):
