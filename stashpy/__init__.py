@@ -14,9 +14,6 @@ from .pattern_matching import LineParser
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PORT = 8899
-DEFAULT_ADDRESS = '0.0.0.0'
-
 class DictSpec:
 
     def __init__(self, parser):
@@ -169,22 +166,3 @@ class MainHandler(tornado.tcpserver.TCPServer):
                                ESIndexer(**self.es_config),
                                self._load_processor())
         yield cn.on_connect()
-
-
-class App:
-    def __init__(self, config):
-        assert 'processor_spec' in config or 'processor_class' in config
-        self.config = config
-        self.main = MainHandler(es_config=config.get('indexer_config'),
-                                processor_spec=config.get('processor_spec'),
-                                processor_class=config.get('processor_class'))
-
-    def run(self):
-        port = self.config.get('port', DEFAULT_PORT)
-        self.main.listen(port, address=DEFAULT_ADDRESS)
-        logger.info("Stashpy started, accepting connections on {}:{}".format(
-            'localhost',
-            port))
-        io_loop = tornado.ioloop.IOLoop.current()
-        if not io_loop._running:
-            io_loop.start()

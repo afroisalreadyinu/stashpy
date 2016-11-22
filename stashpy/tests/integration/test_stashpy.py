@@ -10,7 +10,7 @@ from tornado.iostream import IOStream
 from tornado.httpclient import AsyncHTTPClient
 import tornado.gen
 
-import stashpy
+from stashpy.main import App
 
 CONFIG = {
     'processor_spec': {'to_dict': ["My name is {name} and I'm {age:d} years old."]},
@@ -58,7 +58,7 @@ class StashpyTests(AsyncTestCase):
         url = "http://localhost:9200/{}/".format(CONFIG['indexer_config']['index_pattern'])
         resp = yield client.fetch(url, method='DELETE', headers=None, raise_error=False)
 
-        app = stashpy.App(CONFIG)
+        app = App(CONFIG)
         app.run()
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
