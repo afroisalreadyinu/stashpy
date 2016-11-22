@@ -94,7 +94,8 @@ def main():
         vals = run_step(sock, step, config['processor_spec']['to_dict'][0])
         if step == 1:
             time.sleep(2)
-        resp = urlopen(Request('http://localhost:9200/stashpy-2016-03-16/_flush', urlencode({'wait_if_ongoing': 'true'}).encode('utf-8'))).read()
+        flush_url = '{}/_flush'.format(index_url())
+        resp = urlopen(Request(flush_url, urlencode({'wait_if_ongoing': 'true'}).encode('utf-8'))).read()
         success_vals.append(check_step(config['indexer_config']['host'],
                                        config['indexer_config']['port'],
                                        vals))
