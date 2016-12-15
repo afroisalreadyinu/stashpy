@@ -45,17 +45,27 @@ GROK_PATTERNS = read_patterns()
 GROK_REPLACE_PATTERN = regex.compile("\%\{(?P<pattern_name>\w*)(?P<pattern_output>:\w*)?(?P<pattern_type>:\w*)?\}")
 GROK_NEW_PATTERN = "(?P<{name}>{pattern})"
 
-def sub_pattern(match):
-    match_dict = match.groupdict()
-    pattern = GROK_PATTERNS[match_dict['pattern_name']]
-    pattern_output_raw = match_dict['pattern_output']
-    if pattern_output_raw:
-        pattern_output = pattern_output_raw.lstrip(':')
-        new_pattern = GROK_NEW_PATTERN.format(name=pattern_output, pattern=pattern)
-    else:
-        new_pattern = pattern
-    return regex.sub(GROK_REPLACE_PATTERN, sub_pattern, new_pattern)
+class PatternTraverser:
+
+    def __init__(self):
+        self.pattern_types = {}
+
+    def sub_pattern(self, match):
+        match_dict = match.groupdict()
+        pattern = GROK_PATTERNS[match_dict['pattern_name']]
+        pattern_output_raw = match_dict['pattern_output']
+        pattern_type_raw = match_dict['pattern_type']
+        if pattern_output_raw:
+            pattern_output = pattern_output_raw.lstrip(':')
+            new_pattern = GROK_NEW_PATTERN.format(name=pattern_output, pattern=pattern)
+            if pattern_type_raw:
+                pattern_type = pattern_type_raw.lstrip(':')
+                self.pattern_types[pattern_output] = __builtins__[pattern_type]
+        else:
+            new_pattern = pattern
+        return regex.sub(GROK_REPLACE_PATTERN, self.sub_pattern, new_pattern)
 
 def grok_re_preprocess(re_pattern):
-    new_pattern = regex.sub(GROK_REPLACE_PATTERN, sub_pattern, re_pattern)
-    return new_pattern
+    traverser = PatternTraverser()
+    new_pattern = regex.sub(GROK_REPLACE_PATTERN, traverser.sub_pattern, re_pattern)
+    return new_pattern, traverser.pattern_types
