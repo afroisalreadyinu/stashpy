@@ -12,7 +12,7 @@ def is_named_re(maybe_re):
 class LineParser:
 
     def __init__(self, spec):
-        spec = grok_re_preprocess(spec)
+        spec,self.pattern_types = grok_re_preprocess(spec)
         if is_named_re(spec):
             self.re = regex.compile(spec)
             self.parse = None
@@ -25,7 +25,11 @@ class LineParser:
             match = self.re.match(line)
             if match is None:
                 return None
-            return match.groupdict()
+            parsed_values = match.groupdict()
+            for key,val in parsed_values.items():
+                if key in self.pattern_types:
+                    parsed_values[key] = self.pattern_types[key](val)
+            return parsed_values
         match = self.parse.parse(line)
         if match is None:
             return None

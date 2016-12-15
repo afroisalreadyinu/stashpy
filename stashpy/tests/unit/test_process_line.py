@@ -9,6 +9,7 @@ from .common import TimeStampedMixin
 
 SAMPLE_PARSE = "My name is {name} and I'm {age:d} years old."
 SAMPLE_REGEXP = "My name is (?P<name>\w*) and I'm (?P<age>\d*) years old\."
+SAMPLE_GROK = "My name is %{USERNAME:name} and I'm %{INT:age:int} years old\."
 
 class NamedReTests(unittest.TestCase):
 
@@ -27,6 +28,11 @@ class LineParserTests(unittest.TestCase):
 
     def test_parse_parser(self):
         parser = LineParser(SAMPLE_PARSE)
+        self.assertDictEqual(parser("My name is Aaron and I'm 4 years old."),
+                             {'name': 'Aaron', 'age': 4})
+
+    def test_grok_parser(self):
+        parser = LineParser(SAMPLE_GROK)
         self.assertDictEqual(parser("My name is Aaron and I'm 4 years old."),
                              {'name': 'Aaron', 'age': 4})
 
