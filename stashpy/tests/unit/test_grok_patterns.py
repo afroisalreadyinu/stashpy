@@ -35,6 +35,12 @@ class GrokPatternTests(unittest.TestCase):
             compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
             {"username": "Takeshi"})
 
+    def test_pattern_types(self):
+        regexp = "My name is %{USER:username} and I'm %{INT:age:int} years old"
+        compiled = regex.compile(pattern_matching.grok_re_preprocess(regexp))
+        self.assertDictEqual(
+            compiled.match("My name is Takeshi and I'm 4 years old.").groupdict(),
+            {"username": "Takeshi", "age": 4})
 
     def test_embedded_patterns(self):
         regexp = "%{SYSLOGTIMESTAMP:timestamp}"

@@ -42,7 +42,7 @@ def read_patterns():
     return patterns
 
 GROK_PATTERNS = read_patterns()
-GROK_REPLACE_PATTERN = regex.compile("\%\{(?P<pattern_name>\w*)(?P<pattern_output>:\w*)?\}")
+GROK_REPLACE_PATTERN = regex.compile("\%\{(?P<pattern_name>\w*)(?P<pattern_output>:\w*)?(?P<pattern_type>:\w*)?\}")
 GROK_NEW_PATTERN = "(?P<{name}>{pattern})"
 
 def sub_pattern(match):
