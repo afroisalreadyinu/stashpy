@@ -85,3 +85,21 @@ class GrokPatternTests(unittest.TestCase):
              "body_bytes_sent": "1499",
              "http_user_agent": '"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36"'
             })
+
+
+class TestTypeCollection(unittest.TestCase):
+
+    def test_convert_fields(self):
+        type_collection = pattern_matching.TypeCollection({'age': int})
+        self.assertDictEqual(
+            type_collection.convert_fields({'age': '45'}),
+            {'age': 45}
+        )
+
+    def test_convert_fields_empty(self):
+        type_collection = pattern_matching.TypeCollection({'age': int})
+        self.assertDictEqual(type_collection.convert_fields({}), {})
+
+    def test_convert_fields_none(self):
+        type_collection = pattern_matching.TypeCollection({'age': int})
+        self.assertIsNone(type_collection.convert_fields(None))

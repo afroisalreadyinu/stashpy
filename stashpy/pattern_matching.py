@@ -9,11 +9,24 @@ def is_named_re(maybe_re):
     found = NAMED_RE_RE.findall(maybe_re)
     return found
 
+class TypeCollection:
+    def __init__(self, types):
+        self.types = types
+
+    def convert_fields(self, values):
+        if values is None:
+            return None
+        for key,val in values.items():
+            if key in self.types:
+                values[key] = self.types[key](val)
+        return values
+
 
 class LineParser:
 
     def __init__(self, spec):
-        spec,self.pattern_types = grok_re_preprocess(spec)
+        spec, pattern_types = grok_re_preprocess(spec)
+        self.type_collection = TypeCollection(pattern_types)
         if is_named_re(spec):
             self.re = regex.compile(spec)
             self.parse = None
@@ -25,11 +38,7 @@ class LineParser:
         match = self.re.match(line)
         if match is None:
             return None
-        parsed_values = match.groupdict()
-        for key,val in parsed_values.items():
-            if key in self.pattern_types:
-                parsed_values[key] = self.pattern_types[key](val)
-        return parsed_values
+        return self.type_collection.convert_fields(match.groupdict())
 
     def __call__(self, line):
         if self.re:
