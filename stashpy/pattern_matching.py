@@ -9,6 +9,7 @@ def is_named_re(maybe_re):
     found = NAMED_RE_RE.findall(maybe_re)
     return found
 
+
 class LineParser:
 
     def __init__(self, spec):
@@ -20,16 +21,19 @@ class LineParser:
             self.re = None
             self.parse = parse.compile(spec)
 
+    def _re_match(self, line):
+        match = self.re.match(line)
+        if match is None:
+            return None
+        parsed_values = match.groupdict()
+        for key,val in parsed_values.items():
+            if key in self.pattern_types:
+                parsed_values[key] = self.pattern_types[key](val)
+        return parsed_values
+
     def __call__(self, line):
         if self.re:
-            match = self.re.match(line)
-            if match is None:
-                return None
-            parsed_values = match.groupdict()
-            for key,val in parsed_values.items():
-                if key in self.pattern_types:
-                    parsed_values[key] = self.pattern_types[key](val)
-            return parsed_values
+            return self._re_match(line)
         match = self.parse.parse(line)
         if match is None:
             return None
