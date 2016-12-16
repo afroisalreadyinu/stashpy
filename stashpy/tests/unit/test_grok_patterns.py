@@ -86,6 +86,15 @@ class GrokPatternTests(unittest.TestCase):
              "http_user_agent": '"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36"'
             })
 
+class PatternTraverserTests(unittest.TestCase):
+
+    def test_collect_types(self):
+        traverser = pattern_matching.PatternTraverser()
+        re = regex.sub(pattern_matching.GROK_REPLACE_PATTERN,
+                       traverser.sub_pattern,
+                       'This is process %{POSINT:processid:int} running in %{PATH:process_dir}')
+        self.assertDictEqual(traverser.pattern_types, {'processid': int})
+
 
 class TestTypeCollection(unittest.TestCase):
 
