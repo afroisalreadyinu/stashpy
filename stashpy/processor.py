@@ -7,14 +7,6 @@ from .pattern_matching import LineParser
 
 logger = logging.getLogger(__name__)
 
-class DictSpec:
-
-    def __init__(self, parser):
-        self.parser = parser
-
-    def __call__(self, line):
-        return self.parser(line)
-
 class FormatSpec:
 
     def __init__(self, parser, out_format):
@@ -50,8 +42,7 @@ class LineProcessor:
                 to_dict_specs = self.TO_DICT
             if hasattr(self, 'TO_FORMAT'):
                 to_format_specs = self.TO_FORMAT
-        self.dict_specs = [DictSpec(LineParser(spec))
-                           for spec in to_dict_specs]
+        self.dict_specs = [LineParser(spec) for spec in to_dict_specs]
         self.format_specs = [FormatSpec(LineParser(format_spec), output_spec)
                              for format_spec, output_spec in to_format_specs.items()]
 

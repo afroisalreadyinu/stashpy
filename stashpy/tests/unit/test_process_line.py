@@ -3,7 +3,7 @@ from tornado.testing import AsyncTestCase, gen_test
 from tornado import gen
 
 import stashpy.handler
-from stashpy.processor import LineProcessor, FormatSpec, DictSpec
+from stashpy.processor import LineProcessor, FormatSpec
 from stashpy.pattern_matching import is_named_re, LineParser
 from .common import TimeStampedMixin
 
@@ -38,11 +38,6 @@ class LineParserTests(unittest.TestCase):
 
 
 class SpecTests(unittest.TestCase):
-
-    def test_dict_spec(self):
-        spec = DictSpec(LineParser(SAMPLE_PARSE))
-        self.assertDictEqual(spec("My name is Aaron and I'm 5 years old."),
-                             dict({'name': 'Aaron', 'age': 5}))
 
     def test_format_spec(self):
         spec = FormatSpec(LineParser(SAMPLE_PARSE),
