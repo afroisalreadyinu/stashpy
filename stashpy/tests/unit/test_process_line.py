@@ -47,6 +47,11 @@ class SpecTests(unittest.TestCase):
 
 class LineProcessorTests(unittest.TestCase):
 
+    def test_line_processor_in_base_module(self):
+        """Removing the LineProcessor import from stashpy.__init__.py breaks
+        custom processors."""
+        from stashpy import LineProcessor
+
     def test_to_dict(self):
         SPEC = {'to_dict':[SAMPLE_PARSE]}
         processor = LineProcessor(SPEC)
