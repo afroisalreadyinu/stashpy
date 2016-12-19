@@ -95,8 +95,8 @@ The second format, Oniguruma-flavored regular expressions, uses the
 experience similar to that of the [grok plugin for
 Logstash](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html). In
 an Oniguruma RE, you can build complex regular expressions by
-combining simpler components [??]. For example, take the following
-regular expression:
+combining simpler components. For example, take the following regular
+expression:
 
 * `My name is %{USERNAME:name} and I'm %{INT:age} years old`
 
@@ -107,6 +107,20 @@ regular expression:
 
 See the file `stashpy/patterns/grok_patterns.txt` for a list of the
 various components you can use in your regular expressions.
+
+For both of these parsing options, it is possible to specify a type to
+which the parsed string should be converted. `parse` does this
+automatically, converting e.g. a `age` above to integer. With
+Oniguruma, you can specify the type the parsed value should be
+converted to with a constructor appended to the pattern name,
+separated by a colon. For the above example, converting `age` to an
+integer would work with the following expression:
+
+* `My name is %{USERNAME:name} and I'm %{INT:age:int} years old`
+
+The type conversion key is used for looking up a function from the
+`__builtins__` dictionary; any constructor available there can be
+used.
 
 ## Specifying the parsing pipeline
 
