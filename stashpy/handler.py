@@ -11,6 +11,23 @@ from .processor import LineProcessor
 
 logger = logging.getLogger(__name__)
 
+class RotatingCounter:
+    def __init__(self, maximum, log_message, logger_arg=None):
+        self.maximum = maximum
+        self.log_message = log_message
+        self.logger = logger_arg or logger
+        self.current = 0
+
+    def inc(self):
+        self.current += 1
+        if self.current >= self.maximum:
+            self.log()
+            self.current = 0
+
+    def log(self):
+        self.logger.info(self.log_message, self.maximum)
+
+
 class ConnectionHandler:
 
     def __init__(self, stream, address, indexer, line_processor):
