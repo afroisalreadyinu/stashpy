@@ -24,4 +24,4 @@ logging:
   root:
     handlers:
       - default
-    level: 10 #logging.DEBUG
+    level: INFO
