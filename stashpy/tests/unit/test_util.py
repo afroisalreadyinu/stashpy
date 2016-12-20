@@ -7,13 +7,13 @@ class DummyLogger:
         self.logs = []
 
     def info(self, line, *args):
-        self.logs.append(line.format(*args))
+        self.logs.append(line % args)
 
 
 class RotatingHandlerTests(unittest.TestCase):
 
     def test_resets_at_max(self):
-        counter = RotatingCounter(2, "{}", DummyLogger())
+        counter = RotatingCounter(2, "%d", DummyLogger())
         for _ in range(2):
             counter.inc()
         self.assertEqual(counter.current, 0)
@@ -21,7 +21,7 @@ class RotatingHandlerTests(unittest.TestCase):
 
     def test_logs_message(self):
         logger = DummyLogger()
-        counter = RotatingCounter(2, "Maximum: {}", logger)
+        counter = RotatingCounter(2, "Maximum: %d", logger)
         for _ in range(2):
             counter.inc()
         self.assertEqual(len(logger.logs), 1)

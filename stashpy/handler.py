@@ -38,10 +38,10 @@ class ConnectionHandler:
         self.line_processor = line_processor
         self.unparsed_counter = RotatingCounter(
             HEARTBEAT_LOG_COUNT,
-            "Indexed {} unparsed documents")
+            "Indexed %d unparsed documents")
         self.parsed_counter = RotatingCounter(
             HEARTBEAT_LOG_COUNT,
-            "Parsed and indexed {} documents")
+            "Parsed and indexed %d documents")
         self.stream.set_close_callback(self.on_close)
         logger.info("Accepted connection from {}".format(address))
 
