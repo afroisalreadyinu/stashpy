@@ -27,6 +27,7 @@ class RotatingCounter:
     def log(self):
         self.logger.info(self.log_message, self.maximum)
 
+HEARTBEAT_LOG_COUNT = 10
 
 class ConnectionHandler:
 
@@ -35,6 +36,12 @@ class ConnectionHandler:
         self.address = address
         self.indexer = indexer
         self.line_processor = line_processor
+        self.unparsed_counter = RotatingCounter(
+            HEARTBEAT_LOG_COUNT,
+            "Indexed {} unparsed documents")
+        self.parsed_counter = RotatingCounter(
+            HEARTBEAT_LOG_COUNT,
+            "Parsed and indexed {} documents")
         self.stream.set_close_callback(self.on_close)
         logger.info("Accepted connection from {}".format(address))
 
