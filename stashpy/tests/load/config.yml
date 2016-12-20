@@ -4,7 +4,7 @@ processor_spec:
 
 port: 8888
 address : 'localhost'
-
+heartbeat_count: 200
 indexer_config:
   host: localhost
   port: 9200
