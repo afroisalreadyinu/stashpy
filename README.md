@@ -69,6 +69,9 @@ configuration format is YAML. Configuration options are the following:
   `stashpy.main.DEFAULT_LOGGING`, which simply logs to stdout, will be
   used.
 
+* `heartbeat_count`: The number of messages at which a heartbeat log
+  is written.
+
 * `processor_spec`: The parsing specification. See the next section
   for details.
 
