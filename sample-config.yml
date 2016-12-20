@@ -8,7 +8,9 @@ processor_spec:
       age_line: "Age is {age:d}"
 
 port: 8888
-address : '0.0.0.0'
+address: '0.0.0.0'
+
+heartbeat_count: 200
 
 indexer_config:
   host: localhost
