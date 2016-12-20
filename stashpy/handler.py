@@ -66,10 +66,12 @@ class ConnectionHandler:
         if result is None:
             logger.debug("Line not parsed, storing whole message")
             result = {'message': line, '@version': 1}
+            self.unparsed_counter.inc()
         else:
             logger.debug("Match: %s", str(result))
             result['message'] = line
             result['@version'] = 1
+            self.parsed_counter.inc()
         if '@timestamp' not in result:
             result['@timestamp'] = datetime.utcnow().replace(tzinfo=pytz.utc).isoformat()
         yield self.indexer.index(result)
