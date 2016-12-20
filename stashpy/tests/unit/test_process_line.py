@@ -116,39 +116,40 @@ class KitaHandlerTwo(LineProcessor):
     TO_FORMAT = {"Her name is {name} and she's {age:d} years old.":
                  {'name_line':"Name is {name}", 'age_line':"Age is {age}"}}
 
+
 class MainHandlerTests(unittest.TestCase):
 
     def test_custom_handler(self):
-        main = stashpy.handler.MainHandler(
-            dict(host='localhost', port=9200),
-            processor_class='stashpy.tests.unit.test_process_line.KitaHandler')
-        processor = main._load_processor()
+        main = stashpy.handler.MainHandler(dict(
+            es_config=dict(host='localhost', port=9200),
+            processor_class='stashpy.tests.unit.test_process_line.KitaHandler'))
+        processor = main.load_processor()
         self.assertIsInstance(processor, KitaHandler)
         self.assertDictEqual(processor.for_line('This is a test line'), dict(val='test'))
 
 
     def test_spec_handler(self):
-        main = stashpy.handler.MainHandler(
-            dict(host='localhost', port=9200),
-            processor_spec={'to_dict': [SAMPLE_PARSE]})
-        processor = main._load_processor()
+        main = stashpy.handler.MainHandler(dict(
+            es_config=dict(host='localhost', port=9200),
+            processor_spec={'to_dict': [SAMPLE_PARSE]}))
+        processor = main.load_processor()
         self.assertIsInstance(processor, LineProcessor)
         self.assertDictEqual(processor.for_line("My name is Julia and I'm 5 years old."),
                              dict(name='Julia', age=5))
 
 
     def test_custom_handler_with_specs(self):
-        main = stashpy.handler.MainHandler(
-            dict(host='localhost', port=9200),
-            processor_class='stashpy.tests.unit.test_process_line.KitaHandlerTwo')
-        processor = main._load_processor()
+        main = stashpy.handler.MainHandler(dict(
+            es_config=dict(host='localhost', port=9200),
+            processor_class='stashpy.tests.unit.test_process_line.KitaHandlerTwo'))
+        processor = main.load_processor()
         self.assertIsInstance(processor, KitaHandlerTwo)
         self.assertDictEqual(processor.for_line("My name is Juergen and I'm 4 years old."),
                              dict(name='Juergen', age=4))
 
     def test_no_indexer(self):
-        main = stashpy.handler.MainHandler(
-            None,
-            processor_class='stashpy.tests.unit.test_process_line.KitaHandler')
-        processor = main._load_processor()
+        main = stashpy.handler.MainHandler(dict(
+            es_config=None,
+            processor_class='stashpy.tests.unit.test_process_line.KitaHandler'))
+        processor = main.load_processor()
         self.assertDictEqual(processor.for_line("blah"), dict(val='test'))

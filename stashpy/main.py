@@ -15,9 +15,7 @@ class App:
     def __init__(self, config):
         assert 'processor_spec' in config or 'processor_class' in config
         self.config = config
-        self.main = MainHandler(es_config=config.get('indexer_config'),
-                                processor_spec=config.get('processor_spec'),
-                                processor_class=config.get('processor_class'))
+        self.main = MainHandler(config)
 
     def run(self):
         port = self.config.get('port', constants.DEFAULT_PORT)

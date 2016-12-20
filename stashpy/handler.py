@@ -27,20 +27,19 @@ class RotatingCounter:
     def log(self):
         self.logger.info(self.log_message, self.maximum)
 
-HEARTBEAT_LOG_COUNT = 10
 
 class ConnectionHandler:
 
-    def __init__(self, stream, address, indexer, line_processor):
+    def __init__(self, stream, address, indexer, line_processor, heartbeat_count=10):
         self.stream = stream
         self.address = address
         self.indexer = indexer
         self.line_processor = line_processor
         self.unparsed_counter = RotatingCounter(
-            HEARTBEAT_LOG_COUNT,
+            heartbeat_count,
             "Indexed %d unparsed documents")
         self.parsed_counter = RotatingCounter(
-            HEARTBEAT_LOG_COUNT,
+            heartbeat_count,
             "Parsed and indexed %d documents")
         self.stream.set_close_callback(self.on_close)
         logger.info("Accepted connection from {}".format(address))
@@ -87,17 +86,20 @@ class MockIndexer:
     def index(self, doc):
         pass
 
+DEFAULT_HEARTBEAT_COUNT = 200
+
 class MainHandler(tornado.tcpserver.TCPServer):
 
 
-    def __init__(self, es_config, processor_spec=None, processor_class=None):
-        assert processor_spec is not None or processor_class is not None
-        self.processor_spec = processor_spec
-        self.processor_class = processor_class
-        self.es_config = es_config
+    def __init__(self, config):
+        self.config = config
+        self.es_config = config.get('indexer_config')
+        self.processor_spec = config.get('processor_spec')
+        self.processor_class = config.get('processor_class')
+        assert self.processor_spec is not None or self.processor_class is not None
         super().__init__()
 
-    def _load_processor(self):
+    def load_processor(self):
         if self.processor_spec:
             line_processor = LineProcessor(self.processor_spec)
         else:
@@ -114,6 +116,8 @@ class MainHandler(tornado.tcpserver.TCPServer):
         else:
             indexer = ESIndexer(**self.es_config)
         cn = ConnectionHandler(stream, address,
-                               ESIndexer(**self.es_config),
-                               self._load_processor())
+                               indexer,
+                               self.load_processor(),
+                               heartbeat_count=self.config.get('heartbeat_count',
+                                                               DEFAULT_HEARTBEAT_COUNT))
         yield cn.on_connect()
