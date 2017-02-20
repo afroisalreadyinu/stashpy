@@ -11,7 +11,7 @@ test_dependencies = ['nose2>=0.6', 'matplotlib>=1.5']
 
 setup(
     name = "stashpy",
-    version = "0.01",
+    version = "0.02",
     author = "Ulas Tuerkmen",
     author_email = "ulas.tuerkmen@gmail.com",
     description = ("Python 3 alternative to Logstash"),
@@ -22,4 +22,12 @@ setup(
         'console_scripts': ['stashpy = stashpy.main:run']
     },
     url = "https://github.com/afroisalreadyinu/stashpy",
+    classifiers = [
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+    keywords = 'logging elasticsearch kibana monitoring',
 )
