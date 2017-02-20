@@ -72,7 +72,10 @@ class IndexerTests(unittest.TestCase, TimeStampedMixin):
         self.assertDictEqualWithTimestamp(self.request_body(request), doc)
 
     def test_index_pattern_not_date(self):
-        doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-2016'}
+        now = datetime.now()
+        doc = {'name':'Lilith',
+               'age': 4,
+               '_index_':datetime.strftime(now, 'Kita-{name}-%Y')}
         indexer = ESIndexer('localhost', 9200)
         request = indexer._create_request(copy.copy(doc))
         url_prefix = datetime.strftime(
@@ -84,11 +87,15 @@ class IndexerTests(unittest.TestCase, TimeStampedMixin):
         self.assertDictEqualWithTimestamp(self.request_body(request), doc)
 
     def test_index_pattern_different_doc_type(self):
-        doc = {'name':'Lilith', 'age': 4, '_index_':'Kita-{name}-2016'}
+        #what year is it.jpg
+        now = datetime.now()
+        doc = {'name':'Lilith',
+               'age': 4,
+               '_index_':datetime.strftime(now, 'Kita-{name}-%Y')}
         indexer = ESIndexer('localhost', 9200, doc_type='alternative')
         request = indexer._create_request(copy.copy(doc))
         url_prefix = datetime.strftime(
-            datetime.now(),
+            now,
             'http://localhost:9200/Kita-Lilith-%Y/alternative/'
         )
         self.assertTrue(request.url.startswith(url_prefix))
