@@ -11,7 +11,7 @@ test_dependencies = ['nose2>=0.6', 'matplotlib>=1.5']
 
 setup(
     name = "stashpy",
-    version = "0.04",
+    version = "0.2.1",
     author = "Ulas Tuerkmen",
     author_email = "ulas.tuerkmen@gmail.com",
     description = ("Python 3 alternative to Logstash"),
