@@ -10,7 +10,7 @@ from tornado.iostream import IOStream
 from tornado.httpclient import AsyncHTTPClient
 import tornado.gen
 
-from stashpy.main import App
+from stashpy.main import TornadoApp as App
 
 CONFIG = {
     'processor_spec': {'to_dict': ["My name is {name} and I'm {age:d} years old."]},

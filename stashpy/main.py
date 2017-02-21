@@ -11,9 +11,9 @@ from stashpy import constants
 
 logger = logging.getLogger(__name__)
 
-class App:
+
+class TornadoApp:
     def __init__(self, config):
-        assert 'processor_spec' in config or 'processor_class' in config
         self.config = config
         self.main = MainHandler(config)
 
@@ -27,13 +27,36 @@ class App:
         if not io_loop._running:
             io_loop.start()
 
-def run():
+
+class RabbitApp:
+
+    def __init__(self, config):
+        self.config = config
+
+    def run(self):
+        pass
+
+CONFIG_ERR_MSG = 'Either one of tcp_config or queue_config are allowed'
+
+def read_config():
     config_path = os.path.abspath(sys.argv[1])
     with open(config_path, 'r') as config_file:
         config = yaml.load(config_file)
+    return config
+
+def run():
+    config = read_config()
+    assert 'processor_spec' in config or 'processor_class' in config
+    #so much code for an xor
+    if 'tcp_config' in config:
+        assert 'queue_config' not in config, CONFIG_ERR_MSG
+    elif 'queue_config' in config:
+        assert 'tcp_config' not in config, CONFIG_ERR_MSG
+    else:
+        assert False, CONFIG_ERR_MSG
     logging.config.dictConfig(config.pop('logging', constants.DEFAULT_LOGGING))
     try:
-        app = App(config)
+        app = TornadoApp(config) if 'tcp_config' in config else RabbitApp(config)
         app.run()
     except:
         logging.exception('Exception: ')
