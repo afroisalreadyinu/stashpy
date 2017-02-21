@@ -1,0 +1,10 @@
+amqp==2.1.4
+kombu==4.0.2
+parse==1.6.6
+python-dateutil==2.5.1
+pytz==2016.2
+PyYAML==3.11
+regex==2016.3.24
+six==1.10.0
+tornado==4.2.1
+vine==1.1.3
