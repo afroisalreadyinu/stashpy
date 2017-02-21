@@ -34,7 +34,11 @@ class RabbitApp:
         self.config = config
 
     def run(self):
-        pass
+        from kombu import Connection
+        with Connection(self.config['queue_config']['url']) as conn:
+            message = simple_queue.get(block=True, timeout=1)
+            message.ack()
+            simple_queue.close()
 
 CONFIG_ERR_MSG = 'Either one of tcp_config or queue_config are allowed'
 

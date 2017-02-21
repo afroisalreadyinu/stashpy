@@ -15,8 +15,7 @@ tcp_config:
 
 # or alternatively:
 queue_config:
-  host: 'localhost'
-  port: 1521
+  url: 'amqp://guest:guest@localhost:5672//'
   queuename: logqueue
 
 indexer_config:
