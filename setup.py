@@ -11,14 +11,14 @@ test_dependencies = ['nose2>=0.6', 'matplotlib>=1.5']
 
 setup(
     name = "stashpy",
-    version = "0.03",
+    version = "0.04",
     author = "Ulas Tuerkmen",
     author_email = "ulas.tuerkmen@gmail.com",
     description = ("Python 3 alternative to Logstash"),
     install_requires = dependencies,
     tests_require = test_dependencies,
     packages=['stashpy'],
-    package_data={'stashpy': ['stashpy/patterns/*.dat']},
+    package_data={'stashpy': ['patterns/grok_patterns.txt']},
     entry_points = {
         'console_scripts': ['stashpy = stashpy.main:run']
     },
