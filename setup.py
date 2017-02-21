@@ -18,6 +18,7 @@ setup(
     install_requires = dependencies,
     tests_require = test_dependencies,
     packages=['stashpy'],
+    package_data={'stashpy': ['stashpy/patterns/*.dat']},
     entry_points = {
         'console_scripts': ['stashpy = stashpy.main:run']
     },
