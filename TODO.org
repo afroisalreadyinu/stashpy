@@ -1,40 +1,5 @@
-* TODO Better logging
-** TODO Log number of messages on heartbeat
-** DONE Log on connection from client
-   CLOSED: [2016-09-09 Fri 15:05]
+* TODO Implement socket handler in asyncio
 
-* TODO Parse stack traces
+* TODO Test with syslogng whether socket handler works
 
-* TODO Use attrs
-  https://attrs.readthedocs.io/en/stable/
-
-* TODO Index types for fields
-
-* TODO What if ES goes down?
-
-* TODO Add tests for ConnectionHandler
-
-* TODO Error handling
-
-* TODO Garbage collecting finished handlers?
-
-* DONE Sample startup config
-  CLOSED: [2016-03-23 Wed 14:27]
-
-* DONE Test running tcp server with tornado and connecting with syslog-ng
-  CLOSED: [2016-04-12 Tue 15:39]
-
-* DONE Readme
-  CLOSED: [2016-03-23 Wed 16:02]
-
-* DONE Upload to pypi
-  CLOSED: [2016-03-05 Sat 12:49]
-
-* DONE Load testing
-  CLOSED: [2016-04-12 Tue 15:39]
-
-* DONE Add project to a CI and add badges
-  CLOSED: [2016-04-28 Thu 11:15]
-
-* DONE No indexing if there is no ES config
-  CLOSED: [2016-05-11 Wed 09:27]
+* TODO Implement queue listener in asynci
