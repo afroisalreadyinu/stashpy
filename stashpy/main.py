@@ -19,7 +19,8 @@ class App:
 
     def run(self):
         port = self.config.get('port', constants.DEFAULT_PORT)
-        self.main.listen(port, address=constants.DEFAULT_ADDRESS)
+        address = self.config.get('address', constants.DEFAULT_ADDRESS)
+        self.main.listen(port, address=address)
         logger.info("Stashpy started, accepting connections on {}:{}".format(
             'localhost',
             port))
